@@ -35,27 +35,22 @@ public class BrandDetailActivity extends AppCompatActivity {
         brandName = findViewById(R.id.brandName);
         brandImage = findViewById(R.id.brandImage);
 
-        // Nhận brandId từ Intent
         brandId = getIntent().getStringExtra("brandId");
 
-        // Tham chiếu đến node "brands"
         mDatabase = FirebaseDatabase.getInstance().getReference("brands");
 
-        // Lấy thông tin brand từ Firebase
         mDatabase.child(brandId).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                 Brand brand = dataSnapshot.getValue(Brand.class);
                 if (brand != null) {
                     brandName.setText(brand.getName());
-                    // Tải hình ảnh tương ứng nếu cần
                     loadImage(brandImage, brand.getImageUrl());
                 }
             }
 
             @Override
             public void onCancelled(@NonNull DatabaseError databaseError) {
-                // Xử lý lỗi
             }
         });
     }

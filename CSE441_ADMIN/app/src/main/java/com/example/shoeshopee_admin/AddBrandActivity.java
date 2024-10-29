@@ -36,7 +36,7 @@ public class AddBrandActivity extends AppCompatActivity {
     private EditText editTextBrandName;
     private ImageButton buttonChooseImage;
     private Button buttonUploadBrand;
-    private ProgressBar progressBar; // Khai báo ProgressBar
+    private ProgressBar progressBar;
 
     private Uri imageUri;
     private DatabaseReference mDatabase;
@@ -52,7 +52,7 @@ public class AddBrandActivity extends AppCompatActivity {
         buttonUploadBrand = findViewById(R.id.buttonUploadBrand);
         buttonChooseImage = findViewById(R.id.buttonChooseImage);
         back_login = findViewById(R.id.back_login);
-        progressBar = findViewById(R.id.progressBar); // Khởi tạo ProgressBar
+        progressBar = findViewById(R.id.progressBar);
 
         // Khởi tạo Firebase Database và Storage
         mDatabase = FirebaseDatabase.getInstance().getReference("brands");
@@ -92,17 +92,17 @@ public class AddBrandActivity extends AppCompatActivity {
             return;
         }
 
-        // Hiển thị ProgressBar
+
         progressBar.setVisibility(View.VISIBLE);
 
-        // Upload image to Firebase Storage
+
         String imageId = UUID.randomUUID().toString();
         StorageReference imageRef = mStorageReference.child(imageId);
 
         imageRef.putFile(imageUri).addOnCompleteListener(new OnCompleteListener<UploadTask.TaskSnapshot>() {
             @Override
             public void onComplete(@NonNull Task<UploadTask.TaskSnapshot> task) {
-                // Ẩn ProgressBar
+
                 progressBar.setVisibility(View.GONE);
 
                 if (task.isSuccessful()) {
@@ -137,7 +137,7 @@ public class AddBrandActivity extends AppCompatActivity {
 
                         // Quay lại BrandFragment
                         getSupportFragmentManager().beginTransaction()
-                                .replace(R.id.fragment_container, new BrandFragment()) // Đảm bảo rằng bạn có ID của container chứa fragment
+                                .replace(R.id.fragment_container, new BrandFragment())
                                 .commit();
                     } else {
                         Toast.makeText(AddBrandActivity.this, "Failed to add brand", Toast.LENGTH_SHORT).show();
