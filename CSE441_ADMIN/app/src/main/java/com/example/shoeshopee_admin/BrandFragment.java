@@ -99,7 +99,6 @@ public class BrandFragment extends Fragment {
         editTextSearch.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-                // No action needed here
             }
 
             @Override
@@ -114,7 +113,6 @@ public class BrandFragment extends Fragment {
 
             @Override
             public void afterTextChanged(Editable s) {
-                // No action needed here
             }
         });
 
@@ -129,7 +127,6 @@ public class BrandFragment extends Fragment {
             }
         }
 
-        // Display the search results
         if (filteredList.isEmpty()) {
             Toast.makeText(getContext(), "Không tìm thấy thương hiệu", Toast.LENGTH_SHORT).show();
         }
