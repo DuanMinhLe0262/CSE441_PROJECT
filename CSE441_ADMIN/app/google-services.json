@@ -1,0 +1,68 @@
+{
+  "project_info": {
+    "project_number": "946060859568",
+    "firebase_url": "https://ecommerce-3d8ae-default-rtdb.asia-southeast1.firebasedatabase.app",
+    "project_id": "ecommerce-3d8ae",
+    "storage_bucket": "ecommerce-3d8ae.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:946060859568:android:c41db5234967e08745c375",
+        "android_client_info": {
+          "package_name": "com.example.projectadidas"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAnd5PimyKEHlma6bp3_-2sfulRDBTpeDc"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:946060859568:android:2ddf32d1fab608a045c375",
+        "android_client_info": {
+          "package_name": "com.example.projectadidas_admin"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAnd5PimyKEHlma6bp3_-2sfulRDBTpeDc"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:946060859568:android:1f6fb223d0ff7ddb45c375",
+        "android_client_info": {
+          "package_name": "com.example.shoeshopee_admin"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAnd5PimyKEHlma6bp3_-2sfulRDBTpeDc"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
