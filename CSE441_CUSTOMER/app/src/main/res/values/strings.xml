@@ -1,3 +1,13 @@
 <resources>
     <string name="app_name">ShoeShopee_Customer</string>
+    <string name="intro_title">Step into your <font color="#6033ba"> style\n A world of shoes </font></string>
+    <string name="intro_text">Browse the Latest styles from top brand\nGet personalized recommendations\nEnjoy fast, free shipping</string>
+    <string name="intro_signin">Bạn đã có tài khoản? <br /><font color="#1670E9"> Đăng nhập </font> hoặc <font color="#1670E9"> đăng ký </font></string>
+    <string name="login_title">Hi,\nPlease Login</string>
+    <string name="login_bottom_title">Bạn chưa có tài khoản? <font color="#1670E9"> Đăng ký ngay </font> </string>
+    <string name="signup_bottom_title">Bạn đã có tài khoản? <font color="#1670E9"> Đăng nhập ngay </font> </string>
+    <string name="login_to_reset"><font color="#1670E9"> Quên </font>\? </string>
+    <string name="login_SMS"><font color="#1670E9"> Đăng nhập bằng SMS </font>\? </string>
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
 </resources>
