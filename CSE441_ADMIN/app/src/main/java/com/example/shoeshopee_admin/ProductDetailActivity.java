@@ -44,24 +44,29 @@ import java.util.Map;
 public class ProductDetailActivity extends AppCompatActivity {
 
     private Spinner spinnerBrand;
+    private ImageView backBtn;
     private FirebaseDatabase database;
     private DatabaseReference brandsRef;
-    private List<String> brandIds = new ArrayList<>();
-    private List<String> brandNames = new ArrayList<>();
+    private List<String> brandIdList = new ArrayList<>();
+    private List<String> brandNameList = new ArrayList<>();
     private int brandNumber = 0;
+
+    private  Map<String, Color> colors = new HashMap<>();
 
     private String brandId;
 
     private static final int REQUEST_CODE_IMAGE_PICKER = 1;
-    private LinearLayout selectedLayoutImageSelection;
     private DatabaseReference productsRef;
-    private List<LinearLayout> allOptionLayouts = new ArrayList<>();
-    private LinearLayout layoutOptionList;
+    private List<LinearLayout> list_layout_Option = new ArrayList<>();
+    private LinearLayout layout_Option;
 
     private TextInputEditText etProductName, etProductDescription;
 
     private  Map<View, List<String>> optionLayoutImageMap = new HashMap<>();
-    private LinearLayout selectedOptionLayout = null;
+    private LinearLayout selectedOptionLayout = null; // layout khi an add image
+
+    private LinearLayout selectedLayoutImageSelection; // layout danh sach anh da chon
+
     private String productId = "";
 
     @Override
@@ -72,49 +77,60 @@ public class ProductDetailActivity extends AppCompatActivity {
         productId = getIntent().getStringExtra("PRODUCT_ID");
         Log.d("TAG", "onCreate: " + productId);
 
+        backBtn = findViewById(R.id.backBtn);
+        backBtn.setOnClickListener(v -> finish());
 
 
         spinnerBrand = findViewById(R.id.spinner_brand);
         database = FirebaseDatabase.getInstance();
         brandsRef = database.getReference("brands");
 
-        fetchBrandsFromFirebase(new OnloadedListener() {
-            @Override
-            public void onImageUploaded(String imageUrl) {
-            }
-
-            @Override
-            public void onBrandLoaded(List<String> brandNames, List<String> brandIds) {
-                ArrayAdapter<String> adapter = new ArrayAdapter<>(ProductDetailActivity.this, android.R.layout.simple_spinner_item, brandNames);
-                adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-                spinnerBrand.setAdapter(adapter);
-            }
-        });
-
-
         productsRef = FirebaseDatabase.getInstance().getReference("products");
 
 
         etProductName = findViewById(R.id.et_product_name);
         etProductDescription = findViewById(R.id.et_product_description);
-        layoutOptionList = findViewById(R.id.layout_option_list);
+        layout_Option = findViewById(R.id.layout_Option);
 
-        fetchProductData(productId);
+        fetchProductData();
 
         Button btnAddOption = findViewById(R.id.btn_add_option);
         btnAddOption.setOnClickListener(v -> addOption());
 
         Button btnAddProduct = findViewById(R.id.btn_edit_product);
-        btnAddProduct.setOnClickListener(v -> addOrUpdateProductInFirebase());
+        btnAddProduct.setOnClickListener(v -> updateProduct());
     }
 
-    private void fetchProductData(String productId) {
+    private void fetchProductData() {
         productsRef.child(productId).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 if (dataSnapshot.exists()) {
                     String productName = dataSnapshot.child("name").getValue(String.class);
                     String productDescription = dataSnapshot.child("description").getValue(String.class);
+                    String brandId = dataSnapshot.child("brandId").getValue(String.class);
+
+
+
+                    fetchBrandsFromFirebase(new OnloadedListener() {
+                        @Override
+                        public void onImageUploaded(String imageUrl) {
+                        }
+
+                        @Override
+                        public void onBrandLoaded(List<String> brandNames, List<String> brandIds) {
+                            ArrayAdapter<String> adapter = new ArrayAdapter<>(getApplicationContext(),
+                                    android.R.layout.simple_spinner_item, brandNames);
+                            adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+
+                            spinnerBrand.setAdapter(adapter);
+
+                            int selectedIndex = brandIds.indexOf(brandId);
+                            if (selectedIndex != -1) {
+                                spinnerBrand.setSelection(selectedIndex);
+                            }
+                        }
+                    });
 
                     ((TextInputEditText) findViewById(R.id.et_product_name)).setText(productName);
                     ((TextInputEditText) findViewById(R.id.et_product_description)).setText(productDescription);
@@ -134,11 +150,11 @@ public class ProductDetailActivity extends AppCompatActivity {
                         }
 
                         Color color = new Color(colorName, price, images, sizes);
-                        Log.d("TAG", color.toString());
+                        colors.put(colorName, color);
 
                         DisplayOptionLayout(color);
-
                     }
+
                 }
             }
 
@@ -151,69 +167,60 @@ public class ProductDetailActivity extends AppCompatActivity {
 
 
     private void DisplayOptionLayout(Color color) {
-        View optionLayout = getLayoutInflater().inflate(R.layout.layout_option_item, null);
-
-        ((TextInputEditText) optionLayout.findViewById(R.id.et_color)).setText(color.getColorName());
-        ((TextInputEditText) optionLayout.findViewById(R.id.et_price)).setText(String.valueOf(color.getPrice()));
-
+        Log.d("Size number", color.getSizes().size() + "");
         if (color.getSizes() != null && !color.getSizes().isEmpty()) {
             for (Map.Entry<String, Size> entry : color.getSizes().entrySet()) {
                 Size size = entry.getValue();
                 if (size != null) {
-                    ((TextInputEditText) optionLayout.findViewById(R.id.et_size)).setText(size.getSizeName());
-                    ((TextInputEditText) optionLayout.findViewById(R.id.et_quantity)).setText(String.valueOf(size.getQuantity()));
-                    break;
+                    LinearLayout layout_option = (LinearLayout) getLayoutInflater().inflate(R.layout.layout_option_item, null);
+
+                    ((TextInputEditText) layout_option.findViewById(R.id.et_color)).setText(color.getColorName());
+                    ((TextInputEditText) layout_option.findViewById(R.id.et_price)).setText(String.valueOf(color.getPrice()));
+
+                    ((TextInputEditText) layout_option.findViewById(R.id.et_size)).setText(size.getSizeName());
+                    ((TextInputEditText) layout_option.findViewById(R.id.et_quantity)).setText(String.valueOf(size.getQuantity()));
+
+                    // Hiển thị danh sách ảnh
+                    LinearLayout layoutImageSelection = layout_option.findViewById(R.id.layout_image_selection);
+                    if (color.getImages() != null) {
+                        for (String imageUrl : color.getImages()) {
+                            if (imageUrl != null) {
+                                ImageView imageView = new ImageView(this);
+                                LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(
+                                        100, 100
+                                );
+                                layoutParams.setMargins(8, 8, 8, 8);
+                                imageView.setLayoutParams(layoutParams);
+                                imageView.setScaleType(ImageView.ScaleType.CENTER_CROP);
+
+                                Glide.with(this)
+                                        .load(imageUrl)
+                                        .into(imageView);
+                                layoutImageSelection.addView(imageView);
+                            } else {
+                                Log.d("ImageURL", "Image URL is null.");
+                            }
+                        }
+                    }
+
+                    Button btnSelectImages = layout_option.findViewById(R.id.btn_select_images);
+                    btnSelectImages.setOnClickListener(v -> {
+                        openImagePicker(layoutImageSelection);
+                        selectedLayoutImageSelection = layoutImageSelection;
+
+                    });
+
+                    Button btnDeleteOption = layout_option.findViewById(R.id.btn_delete_option);
+                    btnDeleteOption.setOnClickListener(v -> showDeleteConfirmationDialog(layout_option));
+
+                    layout_Option.addView(layout_option);
+
                 }
             }
         } else {
             Log.d("Sizes", "No sizes available or sizes is null.");
         }
-
-        LinearLayout layoutImageSelection = optionLayout.findViewById(R.id.layout_image_selection);
-
-        if (color.getImages() != null) {
-            Log.d("image", color.getImages().toString());
-            for (String imageUrl : color.getImages()) {
-                Log.d("imgurl", imageUrl);
-                if (imageUrl != null) {
-                    ImageView imageView = new ImageView(this);
-                    LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(
-                            100, 100
-                    );
-                    layoutParams.setMargins(8, 8, 8, 8);
-                    imageView.setLayoutParams(layoutParams);
-                    imageView.setScaleType(ImageView.ScaleType.CENTER_CROP);
-
-                    Log.d("Sizes2", "No sizes available or sizes is null.");
-                    Glide.with(this)
-                            .load(imageUrl)
-                            .into(imageView);
-                    layoutImageSelection.addView(imageView);
-                    Log.d("Sizes3", "No sizes available or sizes is null.");
-                } else {
-                    Log.d("ImageURL", "Image URL is null.");
-                }
-            }
-        } else {
-            Log.d("Images", "No images available or images is null.");
-        }
-
-
-        Button btnSelectImages = optionLayout.findViewById(R.id.btn_select_images);
-
-        btnSelectImages.setOnClickListener(v -> {
-            openImagePicker(layoutImageSelection);
-            selectedLayoutImageSelection = layoutImageSelection;
-        });
-
-        Button btnDeleteOption = optionLayout.findViewById(R.id.btn_delete_option);
-        btnDeleteOption.setOnClickListener(v -> showDeleteConfirmationDialog((LinearLayout) optionLayout));
-
-        layoutOptionList.addView(optionLayout);
     }
-
-
-
 
     private void openImagePicker(LinearLayout layoutOption) {
         selectedOptionLayout = layoutOption;
@@ -246,44 +253,43 @@ public class ProductDetailActivity extends AppCompatActivity {
             if (!selectedImageUris.isEmpty()) {
                 optionLayoutImageMap.put(selectedOptionLayout, selectedImageUris);
                 Log.d("df", optionLayoutImageMap.toString());
-                allOptionLayouts.add(selectedOptionLayout);
+                list_layout_Option.add(selectedOptionLayout);
             }
 
             selectedOptionLayout = null;
         }
     }
 
-
-
     private void addOption() {
-        LinearLayout newOptionLayout = (LinearLayout) getLayoutInflater().inflate(R.layout.layout_option_item, null);
+        LinearLayout newLayout_Option = (LinearLayout) getLayoutInflater().inflate(R.layout.layout_option_item, null);
 
-        Button btnSelectImages = newOptionLayout.findViewById(R.id.btn_select_images);
-        LinearLayout layoutImageSelection = newOptionLayout.findViewById(R.id.layout_image_selection);
+        Button btnSelectImages = newLayout_Option.findViewById(R.id.btn_select_images);
+        LinearLayout layoutImageSelection = newLayout_Option.findViewById(R.id.layout_image_selection); // layout danh sach anh da chon
 
         btnSelectImages.setOnClickListener(v -> {
 
-            openImagePicker(newOptionLayout);
+            openImagePicker(newLayout_Option);
 
             selectedLayoutImageSelection = layoutImageSelection;
         });
 
 
-        Button btnDeleteOption = newOptionLayout.findViewById(R.id.btn_delete_option);
-        btnDeleteOption.setOnClickListener(v -> showDeleteConfirmationDialog(newOptionLayout));
+        Button btnDeleteOption = newLayout_Option.findViewById(R.id.btn_delete_option);
+        btnDeleteOption.setOnClickListener(v -> showDeleteConfirmationDialog(newLayout_Option));
 
 
-        layoutOptionList.addView(newOptionLayout);
+        layout_Option.addView(newLayout_Option);
+        list_layout_Option.add(newLayout_Option);
 
     }
 
-    private void showDeleteConfirmationDialog(LinearLayout optionLayout) {
+    private void showDeleteConfirmationDialog(LinearLayout layout_option) {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setTitle("Delete Option");
         builder.setMessage("Are you sure you want to delete this option?");
         builder.setPositiveButton("Yes", (dialog, which) -> {
-            layoutOptionList.removeView(optionLayout);
-            allOptionLayouts.remove(optionLayout);
+            layout_Option.removeView(layout_option);
+            list_layout_Option.remove(layout_option);
         });
         builder.setNegativeButton("No", (dialog, which) -> dialog.dismiss());
         builder.create().show();
@@ -303,97 +309,64 @@ public class ProductDetailActivity extends AppCompatActivity {
         selectedLayoutImageSelection.addView(imageView);
     }
 
-    public void addOrUpdateProductInFirebase() {
-        String productName = etProductName.getText().toString();
-        String productDescription = etProductDescription.getText().toString();
-        int position = spinnerBrand.getSelectedItemPosition();
-        Log.d("positon", position + "");
-        brandId = brandIds.get(position);
-        Log.d("brandId", brandId);
+    private void updateProduct() {
+        String productName = ((TextInputEditText) findViewById(R.id.et_product_name)).getText().toString().trim();
+        String productDescription = ((TextInputEditText) findViewById(R.id.et_product_description)).getText().toString().trim();
 
-        DatabaseReference productRef = FirebaseDatabase.getInstance().getReference("products");
+        int selectedIndex = spinnerBrand.getSelectedItemPosition();
+        String brandId = brandIdList.get(selectedIndex);
 
-        productRef.orderByChild("name").equalTo(productName).addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot snapshot) {
-                String productId;
-                Map<String, Color> colors = new HashMap<>();
+        for (int i = 0; i < list_layout_Option.size(); i++) {
+            View optionView = list_layout_Option.get(i);
+            Log.d("??1", optionView.toString());
 
-                if (snapshot.exists()) {
-                    DataSnapshot existingProductSnapshot = snapshot.getChildren().iterator().next();
-                    productId = existingProductSnapshot.getKey();
+            List<String> imagelist = optionLayoutImageMap.get(optionView);
 
-                    Product existingProduct = existingProductSnapshot.getValue(Product.class);
-                    if (existingProduct != null && existingProduct.getColors() != null) {
-                        colors = existingProduct.getColors();
-                    }
+            TextInputEditText colorEditText = optionView.findViewById(R.id.et_color);
+            TextInputEditText priceEditText = optionView.findViewById(R.id.et_price);
+            TextInputEditText sizeEditText = optionView.findViewById(R.id.et_size);
+            TextInputEditText quantityEditText = optionView.findViewById(R.id.et_quantity);
+
+            String colorName = colorEditText.getText().toString();
+            double price = Double.parseDouble(priceEditText.getText().toString());
+
+
+            if (colors.containsKey(colorName)) {
+                Color existingColor = colors.get(colorName);
+                String sizeName = sizeEditText.getText().toString();
+                int quantity = Integer.parseInt(quantityEditText.getText().toString());
+
+                if (existingColor.getSizes().containsKey(sizeName)) {
+                    Size existingSize = existingColor.getSizes().get(sizeName);
+                    existingSize.setQuantity(existingSize.getQuantity() + quantity);
+
                 } else {
-                    productId = productRef.push().getKey();
-                    if (productId == null) {
-                        Toast.makeText(ProductDetailActivity.this, "Failed to generate product ID!", Toast.LENGTH_SHORT).show();
-                        return;
-                    }
+                    existingColor.getSizes().put(sizeName, new Size(sizeName, quantity));
                 }
 
+                existingColor.setPrice(price);
+            } else {
+                Map<String, Size> sizes = new HashMap<>();
+                String sizeName = sizeEditText.getText().toString();
+                int quantity = Integer.parseInt(quantityEditText.getText().toString());
+                sizes.put(sizeName, new Size(sizeName, quantity));
 
-                for (int i = 0; i < allOptionLayouts.size(); i++) {
-                    View optionView = allOptionLayouts.get(i);
-                    Log.d("??1", optionView.toString());
-
-                    List<String> imagelist = optionLayoutImageMap.get(optionView);
-                    Log.d("??2", imagelist.toString());
-                    TextInputEditText colorEditText = optionView.findViewById(R.id.et_color);
-                    TextInputEditText priceEditText = optionView.findViewById(R.id.et_price);
-                    TextInputEditText sizeEditText = optionView.findViewById(R.id.et_size);
-                    TextInputEditText quantityEditText = optionView.findViewById(R.id.et_quantity);
-
-                    String colorName = colorEditText.getText().toString();
-                    double price = Double.parseDouble(priceEditText.getText().toString());
-
-
-                    if (colors.containsKey(colorName)) {
-                        Color existingColor = colors.get(colorName);
-                        String sizeName = sizeEditText.getText().toString();
-                        int quantity = Integer.parseInt(quantityEditText.getText().toString());
-
-                        if (existingColor.getSizes().containsKey(sizeName)) {
-                            Size existingSize = existingColor.getSizes().get(sizeName);
-                            existingSize.setQuantity(existingSize.getQuantity() + quantity);
-                        } else {
-                            existingColor.getSizes().put(sizeName, new Size(sizeName, quantity));
-                        }
-
-                        existingColor.setPrice(price);
-                        existingColor.setImages(imagelist);
-                        Log.d("ioes", "onDataChange: "+existingColor.getImages().toString());
-                    } else {
-                        Map<String, Size> sizes = new HashMap<>();
-                        String sizeName = sizeEditText.getText().toString();
-                        int quantity = Integer.parseInt(quantityEditText.getText().toString());
-                        sizes.put(sizeName, new Size(sizeName, quantity));
-
-                        colors.put(colorName, new Color(colorName, price, imagelist, sizes));
-                        Log.d("ioes4", "onDataChange: "+colors.size());
-                    }
-                }
-
-                Product product = new Product(productId, productName, productDescription, brandId, colors);
-
-                Log.d("product", product.toString());
-
-                uploadImagesAndAddProduct(product);
+                colors.put(colorName, new Color(colorName, price, imagelist, sizes));
+                Log.d("ioes4", "onDataChange: "+colors.size());
             }
+        }
 
-            @Override
-            public void onCancelled(DatabaseError error) {
-                Toast.makeText(ProductDetailActivity.this, "Database error: " + error.getMessage(), Toast.LENGTH_SHORT).show();
-            }
-        });
+        Product product = new Product(productId, productName, productDescription, brandId, colors);
+
+        uploadImagesAndAddProduct(product);
+
+
     }
 
     private void uploadImagesAndAddProduct(Product product) {
         int[] uploadedCount = {0};
         final int[] totalImages = {0};
+
 
         for (Color color : product.getColors().values()) {
             totalImages[0] += color.getImages().size();
@@ -404,52 +377,35 @@ public class ProductDetailActivity extends AppCompatActivity {
             List<String> uploadedImageUrls = new ArrayList<>();
 
             for (String imageUri : color.getImages()) {
-                if (isUrl(imageUri)) {
-                    uploadedImageUrls.add(imageUri);
-                    uploadedCount[0]++;
+                Uri uri = Uri.parse(imageUri);
+                uploadImageToStorage(uri, new AddProductActivity.OnloadedListener() {
+                    @Override
+                    public void onImageUploaded(String uploadedImageUrl) {
+                        uploadedImageUrls.add(uploadedImageUrl);
 
-                    if (uploadedImageUrls.size() == color.getImages().size()) {
-                        color.setImages(uploadedImageUrls);
+                        if (uploadedImageUrls.size() == color.getImages().size()) {
+                            color.setImages(uploadedImageUrls);
+                        }
+
+                        uploadedCount[0]++;
+                        if (uploadedCount[0] == totalImages[0]) {
+                            saveProductToFirebase(product);
+                        }
                     }
-                } else {
-                    Uri uri = Uri.parse(imageUri);
-                    uploadImageToStorage(uri, new OnloadedListener() {
-                        @Override
-                        public void onImageUploaded(String uploadedImageUrl) {
-                            uploadedImageUrls.add(uploadedImageUrl);
-                            Log.d("uploadedImageUrls", "onImageUploaded: " + uploadedImageUrl);
 
-                            if (uploadedImageUrls.size() == color.getImages().size()) {
-                                color.setImages(uploadedImageUrls);
-                            }
+                    @Override
+                    public void onBrandLoaded(List<String> brandNames, List<String> brandIds) {
 
-                            uploadedCount[0]++;
-                            if (uploadedCount[0] == totalImages[0]) {
-                                saveProductToFirebase(product);
-                            }
-                        }
+                    }
 
-                        @Override
-                        public void onBrandLoaded(List<String> brandNames, List<String> brandIds) {
-                        }
-                    });
-                }
+                });
             }
         }
     }
 
-    private boolean isUrl(String uriString) {
-        try {
-            new URL(uriString);
-            return true;
-        } catch (MalformedURLException e) {
-            return false;
-        }
-    }
-
-
     private void saveProductToFirebase(Product product) {
         Log.d("Firebase", "Saving product: " + product.toString());
+        // Save the product to Firebase Database
         productsRef.child(product.getId()).setValue(product)
                 .addOnCompleteListener(task -> {
                     if (task.isSuccessful()) {
@@ -463,7 +419,12 @@ public class ProductDetailActivity extends AppCompatActivity {
                 });
     }
 
-    private void uploadImageToStorage(Uri imageUri, OnloadedListener listener) {
+    private void uploadImageToStorage(Uri imageUri, AddProductActivity.OnloadedListener listener) {
+        if (imageUri.toString().startsWith("http://") || imageUri.toString().startsWith("https://")) {
+            listener.onImageUploaded(imageUri.toString());
+            return;
+        }
+
         StorageReference storageReference = FirebaseStorage.getInstance().getReference("images/" + imageUri.getLastPathSegment());
 
         try {
@@ -487,19 +448,21 @@ public class ProductDetailActivity extends AppCompatActivity {
         }
     }
 
+
+
     private void fetchBrandsFromFirebase(OnloadedListener listener) {
         brandsRef.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                brandNumber = -1;
+                brandNumber = 0;
                 for (DataSnapshot brandSnapshot : dataSnapshot.getChildren()) {
                     brandNumber += 1;
                     String brandId = brandSnapshot.getKey();
                     String brandName = brandSnapshot.child("name").getValue(String.class);
-                    brandIds.add(brandId);
-                    brandNames.add(brandName);
+                    brandIdList.add(brandId);
+                    brandNameList.add(brandName);
                 }
-                listener.onBrandLoaded(brandNames, brandIds);
+                listener.onBrandLoaded(brandNameList, brandIdList);
 
             }
 
