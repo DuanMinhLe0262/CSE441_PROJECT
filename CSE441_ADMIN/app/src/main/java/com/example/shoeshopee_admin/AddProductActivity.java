@@ -229,9 +229,6 @@ public class AddProductActivity extends AppCompatActivity {
                     }
                 }
 
-
-
-
                 for (int i = 0; i < allOptionLayouts.size(); i++) {
                     View optionView = allOptionLayouts.get(i);
                     Log.d("??1", optionView.toString());
@@ -373,7 +370,7 @@ public class AddProductActivity extends AppCompatActivity {
         brandsRef.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                brandNumber = -1;
+                brandNumber = 0;
                 for (DataSnapshot brandSnapshot : dataSnapshot.getChildren()) {
                     brandNumber += 1;
                     String brandId = brandSnapshot.getKey();
