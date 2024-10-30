@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <group android:checkableBehavior="single"
+        android:menuCategory="alternative">
+
+        <item
+            android:id="@+id/nav_home"
+            android:icon="@drawable/direction_24_icon"
+            android:title="Trang chủ" />
+
+        <item
+            android:id="@+id/nav_brand"
+            android:icon="@drawable/direction_24_icon"
+            android:title="Thương hiệu"/>
+
+        <item
+            android:id="@+id/nav_product"
+            android:icon="@drawable/direction_24_icon"
+            android:title="Sản phẩm"/>
+
+        <item
+            android:id="@+id/nav_order"
+            android:icon="@drawable/direction_24_icon"
+            android:title="Đơn hàng"/>
+
+        <item
+            android:id="@+id/nav_user"
+            android:icon="@drawable/direction_24_icon"
+            android:title="Người dùng"/>
+
+        <item
+            android:id="@+id/nav_Statistic"
+            android:icon="@drawable/direction_24_icon"
+            android:title="Thống kê"/>
+
+        <item
+            android:id="@+id/nav_help_center"
+            android:icon="@drawable/direction_24_icon"
+            android:title="Trung tâm trợ giúp"/>
+    </group>
+
+</menu>
