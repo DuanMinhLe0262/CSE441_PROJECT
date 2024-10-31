@@ -1,8 +1,11 @@
 package com.example.shoeshopee_admin;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.Spinner;
 import android.widget.TextView;
@@ -32,10 +35,13 @@ import java.util.List;
 public class OrderDetailActivity extends AppCompatActivity {
 
     private ImageView backBtn;
+    private Button updateStatusButton;
     private Spinner statusSpinner;
     private CartProductAdapter cartProductAdapter;
     private RecyclerView productRecyclerView;
     private List<CartProduct> cartProducts = new ArrayList<>();
+
+    ArrayAdapter<CharSequence> adapter;
 
     private TextView orderIdText, customerNameText, customerPhoneText, addressText, totalAmountText, statusText, noteText, timeText;
 
@@ -45,12 +51,11 @@ public class OrderDetailActivity extends AppCompatActivity {
         EdgeToEdge.enable(this);
         setContentView(R.layout.activity_order_detail);
 
-        Spinner statusSpinner = findViewById(R.id.statusSpinner);
-        ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(this,
+        statusSpinner = findViewById(R.id.statusSpinner);
+        adapter = ArrayAdapter.createFromResource(this,
                 R.array.order_status, android.R.layout.simple_spinner_item);
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         statusSpinner.setAdapter(adapter);
-
 
 
         backBtn = findViewById(R.id.backBtn);
@@ -62,6 +67,7 @@ public class OrderDetailActivity extends AppCompatActivity {
         statusText = findViewById(R.id.statusText);
         noteText = findViewById(R.id.noteText);
         timeText = findViewById(R.id.timeText);
+        updateStatusButton = findViewById(R.id.updateStatusButton);
 
         String orderId = getIntent().getStringExtra("ORDER_ID");
         if (orderId != null) {
@@ -71,13 +77,34 @@ public class OrderDetailActivity extends AppCompatActivity {
             finish();
         }
 
-
         RecyclerView productRecyclerView = findViewById(R.id.productRecyclerView);
         cartProductAdapter = new CartProductAdapter(cartProducts);
         productRecyclerView.setLayoutManager(new LinearLayoutManager(this));
         productRecyclerView.setAdapter(cartProductAdapter);
 
         backBtn.setOnClickListener(v -> finish());
+
+        updateStatusButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                updateOrderStatus(orderId);
+            }
+        });
+    }
+
+    private void updateOrderStatus(String orderId) {
+        String selectedStatus = statusSpinner.getSelectedItem().toString();
+
+        DatabaseReference orderRef = FirebaseDatabase.getInstance().getReference("orders").child(orderId);
+        orderRef.child("status").setValue(selectedStatus).addOnCompleteListener(task -> {
+            if (task.isSuccessful()) {
+                Toast.makeText(OrderDetailActivity.this, "Trạng thái đã được cập nhật.", Toast.LENGTH_SHORT).show();
+                startActivity(new Intent(OrderDetailActivity.this, OrderFragment.class));
+            } else {
+                Toast.makeText(OrderDetailActivity.this, "Cập nhật trạng thái thất bại.", Toast.LENGTH_SHORT).show();
+                Log.e("OrderDetailActivity", "Error: " + task.getException());
+            }
+        });
     }
 
     private void fetchOrderDetails(String orderId) {
@@ -95,8 +122,15 @@ public class OrderDetailActivity extends AppCompatActivity {
                     addressText.setText(String.format("Address: %s", order.getCustomerAddress()));
                     totalAmountText.setText(String.format("Total: %.2f", order.getTotalAmount()));
                     statusText.setText(String.format("Status: %s", order.getStatus()));
+
                     noteText.setText(String.format("Note: %s", order.getNote()));
                     timeText.setText(String.format("Time: %s", order.getTime()));
+
+                    // Thiết lập giá trị cho Spinner
+                    int spinnerPosition = adapter.getPosition(order.getStatus()); // Lấy vị trí của trạng thái
+                    if (spinnerPosition >= 0) { // Kiểm tra xem vị trí có hợp lệ không
+                        statusSpinner.setSelection(spinnerPosition); // Thiết lập giá trị cho Spinner
+                    }
 
 
                     DataSnapshot itemsSnapshot = snapshot.child("items");

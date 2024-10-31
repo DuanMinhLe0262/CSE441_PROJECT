@@ -34,10 +34,6 @@
             android:icon="@drawable/direction_24_icon"
             android:title="Thống kê"/>
 
-        <item
-            android:id="@+id/nav_help_center"
-            android:icon="@drawable/direction_24_icon"
-            android:title="Trung tâm trợ giúp"/>
     </group>
 
 </menu>
