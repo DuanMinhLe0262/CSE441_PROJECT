@@ -3,4 +3,11 @@
 
     <string name="open_nav">Open navigation drawer</string>
     <string name="close_nav">Close navigation drawer</string>
+
+    <string-array name="order_status">
+        <item>Chờ xác nhận</item>
+        <item>Đang giao hàng</item>
+        <item>Đã giao hàng</item>
+    </string-array>
+
 </resources>

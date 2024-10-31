@@ -8,17 +8,14 @@ public class Order {
     private String customerPhone;
     private String customerName;
     private String customerAddress;
-    private Map<String, Product> items;
+    private Map<String, CartProduct> items;
     private Double totalAmount;
     private String status;
     private String time;
+    private String note;
 
     public Order() {
     }
-
-    private String note;
-
-    // Constructor
 
     public String getId() {
         return id;
@@ -60,11 +57,11 @@ public class Order {
         this.customerAddress = customerAddress;
     }
 
-    public Map<String, Product> getItems() {
+    public Map<String, CartProduct> getItems() {
         return items;
     }
 
-    public void setItems(Map<String, Product> items) {
+    public void setItems(Map<String, CartProduct> items) {
         this.items = items;
     }
 
@@ -100,7 +97,7 @@ public class Order {
         this.note = note;
     }
 
-    public Order(String id, String userId, String customerPhone, String customerName, String customerAddress, Map<String, Product> items, Double totalAmount, String status, String time, String note) {
+    public Order(String id, String userId, String customerPhone, String customerName, String customerAddress, Map<String, CartProduct> items, Double totalAmount, String status, String time, String note) {
         this.id = id;
         this.userId = userId;
         this.customerPhone = customerPhone;
