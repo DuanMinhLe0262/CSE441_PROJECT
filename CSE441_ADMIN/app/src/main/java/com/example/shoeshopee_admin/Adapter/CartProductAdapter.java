@@ -40,6 +40,7 @@ public class CartProductAdapter extends RecyclerView.Adapter<CartProductAdapter.
         holder.txtProductDescriptionInPayment.setText(String.format("%s, %s", product.getColorName(), product.getSizeName()));
         holder.txtProductPriceInPayment.setText(product.getPrice()+"");
         holder.txtProductQuantityInPayment.setText(String.format("x%d", product.getQuantity()));
+        holder.txtTotalAmountInPayment.setText(product.getPrice()* product.getQuantity()+"");
 
         // Tải hình ảnh bằng Glide
         Glide.with(holder.itemView.getContext())
@@ -60,6 +61,7 @@ public class CartProductAdapter extends RecyclerView.Adapter<CartProductAdapter.
         TextView txtProductDescriptionInPayment;
         TextView txtProductPriceInPayment;
         TextView txtProductQuantityInPayment;
+        TextView txtTotalAmountInPayment;
         ImageView imgProductInPayment;
 
         public ViewHolder(@NonNull View itemView) {
@@ -70,6 +72,7 @@ public class CartProductAdapter extends RecyclerView.Adapter<CartProductAdapter.
             txtProductPriceInPayment = itemView.findViewById(R.id.txtProductPriceInPayment);
             txtProductQuantityInPayment = itemView.findViewById(R.id.txtProductQuantityInPayment);
             imgProductInPayment = itemView.findViewById(R.id.imgProductInPayment);
+            txtTotalAmountInPayment = itemView.findViewById(R.id.txtTotalAmountInPayment);
         }
     }
 }

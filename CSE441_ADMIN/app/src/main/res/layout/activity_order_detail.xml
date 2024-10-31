@@ -112,6 +112,8 @@
                 android:id="@+id/updateStatusButton"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:background="@drawable/btn_bg"
+                android:textColor="@color/white"
                 android:text="Update Status"
                 android:layout_marginTop="10dp" />
         </LinearLayout>
