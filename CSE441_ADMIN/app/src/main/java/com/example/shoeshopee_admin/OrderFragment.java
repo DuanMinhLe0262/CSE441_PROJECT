@@ -60,7 +60,7 @@ public class OrderFragment extends Fragment {
                     Log.d("rrr1", orderSnapshot.toString() + "");
                     Order order = orderSnapshot.getValue(Order.class);
                     if (order != null) {
-                        order.setId(orderSnapshot.getKey()); // Set ID from Firebase
+                        order.setId(orderSnapshot.getKey());
                         orderList.add(order);
                         Log.d("rrr", order.toString() + "");
                     }

@@ -7,7 +7,7 @@ public class CartProduct {
     private String colorName; // Tên màu sắc
     private String image; // Hình ảnh sản phẩm
     private String sizeName; // Tên kích thước
-    private String price;
+    private double price;
     private String brandName;
     private int quantity; // Số lượng sản phẩm
 
@@ -51,11 +51,11 @@ public class CartProduct {
         this.sizeName = sizeName;
     }
 
-    public String getPrice() {
+    public double getPrice() {
         return price;
     }
 
-    public void setPrice(String price) {
+    public void setPrice(double price) {
         this.price = price;
     }
 
@@ -75,7 +75,7 @@ public class CartProduct {
         this.quantity = quantity;
     }
 
-    public CartProduct(String id, String name, String colorName, String image, String sizeName, String price, String brandName, int quantity) {
+    public CartProduct(String id, String name, String colorName, String image, String sizeName, double price, String brandName, int quantity) {
         this.id = id;
         this.name = name;
         this.colorName = colorName;

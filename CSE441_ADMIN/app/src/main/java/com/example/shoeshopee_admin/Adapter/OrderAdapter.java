@@ -1,6 +1,7 @@
 package com.example.shoeshopee_admin.Adapter;
 
 import android.content.Context;
+import android.content.Intent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -10,6 +11,8 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.shoeshopee_admin.Model.Order;
+import com.example.shoeshopee_admin.OrderDetailActivity;
+import com.example.shoeshopee_admin.ProductDetailActivity;
 import com.example.shoeshopee_admin.R;
 
 import java.util.List;
@@ -40,6 +43,12 @@ public class OrderAdapter extends RecyclerView.Adapter<OrderAdapter.OrderViewHol
         holder.totalAmountTextView.setText("Total: " + order.getTotalAmount());
         holder.statusTextView.setText("Status: " + order.getStatus());
         holder.timeTextView.setText("Time: " + order.getTime());
+
+        holder.itemView.setOnClickListener(v -> {
+            Intent intent = new Intent(context, OrderDetailActivity.class);
+            intent.putExtra("ORDER_ID",order.getId()); // Truyền ID sản phẩm cho activity chi tiết
+            context.startActivity(intent);
+        });
     }
 
     @Override
