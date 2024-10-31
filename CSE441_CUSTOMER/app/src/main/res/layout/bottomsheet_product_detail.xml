@@ -169,6 +169,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="@drawable/btn_login_bg"
+        app:backgroundTint="@null"
         android:text="Thêm vào giỏ hàng"
         android:layout_marginTop="10dp"
         android:textColor="@color/white">
@@ -180,6 +181,6 @@
         android:layout_centerInParent="true"
         android:visibility="gone"
         android:indeterminate="true"
-    android:theme="@style/Widget.AppCompat.ProgressBar" />
+        android:theme="@style/Widget.AppCompat.ProgressBar" />
 
 </LinearLayout>

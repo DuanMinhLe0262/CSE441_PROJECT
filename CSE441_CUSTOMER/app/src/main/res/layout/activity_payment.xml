@@ -1,11 +1,281 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="@color/white"
     tools:context=".PaymentActivity">
 
+  <androidx.constraintlayout.widget.ConstraintLayout
+      android:layout_width="match_parent"
+      android:layout_height="wrap_content">
+
+    <ImageView
+        android:id="@+id/backImgBtn"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:src="@drawable/back_icon"
+        android:contentDescription="Back icon"
+        android:layout_marginTop="10dp"
+        android:layout_marginStart="20dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent" />
+
   </androidx.constraintlayout.widget.ConstraintLayout>
+
+  <androidx.core.widget.NestedScrollView
+      android:layout_width="match_parent"
+      android:layout_height="0dp"
+      android:layout_weight="1">
+
+    <LinearLayout
+        android:id="@+id/linearShowAddressFill"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+      <TextView
+          android:id="@+id/txtInfoInPayment"
+          android:layout_width="match_parent"
+          android:layout_height="wrap_content"
+          android:text="Thông tin nhận hàng"
+          android:paddingStart="10dp"
+          android:drawablePadding="10dp"
+          android:paddingEnd="10dp"
+          android:textSize="14sp"
+          android:gravity="center_vertical"
+          android:layout_marginTop="20dp"
+          android:textStyle="bold" />
+
+      <LinearLayout
+          android:id="@+id/linearAddressFill"
+          android:layout_width="match_parent"
+          android:layout_height="wrap_content"
+          android:orientation="vertical">
+
+        <EditText
+            android:id="@+id/edtAddressPayment"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:ems="10"
+            android:inputType="text"
+            android:textSize="14sp"
+            android:layout_marginHorizontal="10dp"
+            android:layout_marginTop="10dp"
+            android:drawablePadding="20dp"
+            android:hint="Địa chỉ" />
+
+        <EditText
+            android:id="@+id/edtNamePayment"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:ems="10"
+            android:inputType="text"
+            android:textSize="14sp"
+            android:layout_marginHorizontal="10dp"
+            android:drawablePadding="20dp"
+            android:hint="Tên" />
+
+        <EditText
+            android:id="@+id/edtPhonePayment"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:ems="10"
+            android:inputType="text"
+            android:textSize="14sp"
+            android:layout_marginHorizontal="10dp"
+            android:drawablePadding="20dp"
+            android:hint="Số điện thoại" />
+
+        <EditText
+            android:id="@+id/edtNotePayment"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:ems="10"
+            android:inputType="text"
+            android:textSize="14sp"
+            android:layout_marginHorizontal="10dp"
+            android:drawablePadding="20dp"
+            android:hint="Ghi chú" />
+      </LinearLayout>
+
+      <View
+          android:layout_width="match_parent"
+          android:layout_height="10dp"
+          android:background="#F5F5F5"
+          android:layout_marginVertical="10dp" />
+
+      <androidx.recyclerview.widget.RecyclerView
+          android:id="@+id/recyclerviewProductPayment"
+          android:layout_width="match_parent"
+          android:layout_height="wrap_content"
+          android:paddingHorizontal="10dp" />
+
+      <View
+          android:layout_width="match_parent"
+          android:layout_height="10dp"
+          android:background="#F5F5F5"
+          android:layout_marginVertical="10dp" />
+
+      <LinearLayout
+          android:layout_width="match_parent"
+          android:layout_height="wrap_content"
+          android:orientation="vertical"
+          android:paddingHorizontal="10dp">
+        <TextView
+            android:id="@+id/txtPaymentDetail"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Chi tiết thanh toán"
+            android:textSize="15sp"
+            android:textStyle="bold"
+            android:drawablePadding="10dp"
+            android:gravity="center_vertical" />
+      </LinearLayout>
+
+      <TableLayout
+          android:layout_width="match_parent"
+          android:layout_height="wrap_content"
+          android:padding="10dp"
+          android:paddingEnd="15dp">
+        <TableRow
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingVertical="3dp">
+          <TextView
+              android:layout_width="0dp"
+              android:layout_height="wrap_content"
+              android:layout_weight="1"
+              android:text="Tổng tiền hàng"
+              android:gravity="start"
+              android:textSize="14sp" />
+
+          <TextView
+              android:id="@+id/txtTotalProductAmountPayment"
+              android:layout_width="0dp"
+              android:layout_height="match_parent"
+              android:layout_weight="1"
+              android:gravity="end"
+              android:text="Giá"
+              android:textSize="14sp" />
+        </TableRow>
+        <TableRow
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingVertical="3dp">
+          <TextView
+              android:layout_width="0dp"
+              android:layout_height="wrap_content"
+              android:layout_weight="1"
+              android:text="Phí vận chuyển"
+              android:gravity="start"
+              android:textSize="14sp" />
+          <TextView
+              android:id="@+id/txtShipcostPayment"
+              android:layout_width="0dp"
+              android:layout_height="wrap_content"
+              android:layout_weight="1"
+              android:text="Tổng tiền"
+              android:gravity="end"
+              android:textSize="14sp" />
+        </TableRow>
+        <TableRow
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingVertical="3dp">
+          <TextView
+              android:layout_width="0dp"
+              android:layout_height="wrap_content"
+              android:layout_weight="1"
+              android:text="Giảm giá"
+              android:gravity="start"
+              android:textSize="14sp" />
+          <TextView
+              android:id="@+id/txtdiscountPayment"
+              android:layout_width="0dp"
+              android:layout_height="wrap_content"
+              android:layout_weight="1"
+              android:text="Tổng tiền"
+              android:gravity="end"
+              android:textSize="14sp" />
+        </TableRow>
+        <TableRow
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingVertical="3dp">
+          <TextView
+              android:layout_width="0dp"
+              android:layout_height="wrap_content"
+              android:layout_weight="1"
+              android:text="Tổng thanh toán"
+              android:gravity="start"
+              android:textSize="16sp" />
+
+          <TextView
+              android:id="@+id/txtTotalAmountPayment"
+              android:layout_width="0dp"
+              android:layout_height="wrap_content"
+              android:layout_weight="1"
+              android:text="thanh toan"
+              android:gravity="end"
+              android:textSize="16sp" />
+        </TableRow>
+
+      </TableLayout>
+
+      <View
+          android:layout_width="match_parent"
+          android:layout_height="10dp"
+          android:background="#F5F5F5"
+          android:layout_marginVertical="10dp" />
+    </LinearLayout>
+  </androidx.core.widget.NestedScrollView>
+
+  <LinearLayout
+      android:layout_width="match_parent"
+      android:layout_height="wrap_content"
+      android:paddingHorizontal="10dp"
+      android:paddingTop="13dp"
+      android:orientation="horizontal">
+
+    <LinearLayout
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:gravity="center_vertical"
+        android:paddingEnd="10dp"
+        android:orientation="vertical">
+      <TextView
+          android:layout_width="match_parent"
+          android:layout_height="wrap_content"
+          android:textAlignment="textEnd"
+          android:text="Tổng thanh toán"
+          android:textSize="15sp" />
+      <TextView
+          android:id="@+id/txtTotalAmountPaymentWithButton"
+          android:layout_width="match_parent"
+          android:layout_height="wrap_content"
+          android:text="Tổng thanh toán"
+          android:textAlignment="textEnd"
+          android:textColor="#EF4C2B"
+          android:textStyle="bold"
+          android:textSize="16sp" />
+    </LinearLayout>
+
+    <Button
+        android:id="@+id/paymentButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="@drawable/btn_login_bg"
+        android:text="Mua hàng"
+        android:paddingStart="10dp"
+        android:paddingEnd="10dp"
+        android:textSize="12sp"
+        android:textColor="@color/white"
+        app:backgroundTint="@null" />
+  </LinearLayout>
+</LinearLayout>
