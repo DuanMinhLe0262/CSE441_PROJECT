@@ -39,14 +39,14 @@ public class OrderAdapter extends RecyclerView.Adapter<OrderAdapter.OrderViewHol
     public void onBindViewHolder(@NonNull OrderViewHolder holder, int position) {
         Order order = orderList.get(position);
         holder.orderIdTextView.setText("Order ID: " + order.getId());
-        holder.customerNameTextView.setText("Customer: " + order.getCustomerName());
-        holder.totalAmountTextView.setText("Total: " + order.getTotalAmount());
+        holder.customerNameTextView.setText("Customer: " + order.getName());
+        holder.totalAmountTextView.setText("Total: " + order.getTotal());
         holder.statusTextView.setText("Status: " + order.getStatus());
         holder.timeTextView.setText("Time: " + order.getTime());
 
         holder.itemView.setOnClickListener(v -> {
             Intent intent = new Intent(context, OrderDetailActivity.class);
-            intent.putExtra("ORDER_ID",order.getId()); // Truyền ID sản phẩm cho activity chi tiết
+            intent.putExtra("ORDER_ID",order.getId());
             context.startActivity(intent);
         });
     }

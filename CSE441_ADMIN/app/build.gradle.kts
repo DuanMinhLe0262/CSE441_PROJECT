@@ -32,6 +32,8 @@ android {
     }
 }
 
+
+
 dependencies {
 
     implementation(libs.appcompat)
@@ -47,4 +49,5 @@ dependencies {
 
     implementation ("com.github.bumptech.glide:glide:4.15.1")
     annotationProcessor ("com.github.bumptech.glide:compiler:4.15.1")
+    implementation ("com.github.PhilJay:MPAndroidChart:v3.1.0")
 }

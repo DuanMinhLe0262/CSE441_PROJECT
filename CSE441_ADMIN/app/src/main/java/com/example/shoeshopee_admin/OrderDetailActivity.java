@@ -115,21 +115,21 @@ public class OrderDetailActivity extends AppCompatActivity {
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 Order order = snapshot.getValue(Order.class);
                 if (order != null) {
-                    // Gán dữ liệu cho các TextView
+
                     orderIdText.setText(String.format("Order ID: %s", orderId));
-                    customerNameText.setText(String.format("Customer: %s", order.getCustomerName()));
-                    customerPhoneText.setText(String.format("Phone: %s", order.getCustomerPhone()));
-                    addressText.setText(String.format("Address: %s", order.getCustomerAddress()));
-                    totalAmountText.setText(String.format("Total: %.2f", order.getTotalAmount()));
+                    customerNameText.setText(String.format("Customer: %s", order.getName()));
+                    customerPhoneText.setText(String.format("Phone: %s", order.getPhone()));
+                    addressText.setText(String.format("Address: %s", order.getAddress()));
+                    totalAmountText.setText(String.format("Total: %.2f", order.getTotal()));
                     statusText.setText(String.format("Status: %s", order.getStatus()));
 
                     noteText.setText(String.format("Note: %s", order.getNote()));
                     timeText.setText(String.format("Time: %s", order.getTime()));
 
                     // Thiết lập giá trị cho Spinner
-                    int spinnerPosition = adapter.getPosition(order.getStatus()); // Lấy vị trí của trạng thái
-                    if (spinnerPosition >= 0) { // Kiểm tra xem vị trí có hợp lệ không
-                        statusSpinner.setSelection(spinnerPosition); // Thiết lập giá trị cho Spinner
+                    int spinnerPosition = adapter.getPosition(order.getStatus());
+                    if (spinnerPosition >= 0) {
+                        statusSpinner.setSelection(spinnerPosition);
                     }
 
 
@@ -146,13 +146,13 @@ public class OrderDetailActivity extends AppCompatActivity {
                             String image = colorSnapshot.child("image").getValue(String.class);
                             double price = colorSnapshot.child("price").getValue(Double.class);
 
-                            // Lấy thông tin kích thước
+
                             DataSnapshot sizesSnapshot = colorSnapshot.child("sizes");
                             for (DataSnapshot sizeSnapshot : sizesSnapshot.getChildren()) {
                                 String sizeName = sizeSnapshot.getKey();
                                 int quantity = sizeSnapshot.child("quantity").getValue(Integer.class);
 
-                                // Tạo đối tượng CartProduct và thêm vào danh sách
+
                                 CartProduct cartProduct = new CartProduct(productId, productName, colorName, image, sizeName, price, brandName, quantity);
                                 cartProducts.add(cartProduct);
 

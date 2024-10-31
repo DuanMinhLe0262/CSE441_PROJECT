@@ -8,6 +8,12 @@
         <item>Chờ xác nhận</item>
         <item>Đang giao hàng</item>
         <item>Đã giao hàng</item>
+        <item>Đã hủy</item>
     </string-array>
 
+    <string-array name="statistics_options">
+        <item>Doanh thu theo tháng</item>
+        <item>Doanh thu theo sản phẩm</item>
+        <item>Doanh thu theo thương hiệu</item>
+    </string-array>
 </resources>

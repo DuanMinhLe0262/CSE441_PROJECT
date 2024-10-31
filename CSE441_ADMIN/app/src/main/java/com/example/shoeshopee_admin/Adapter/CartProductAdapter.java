@@ -34,19 +34,19 @@ public class CartProductAdapter extends RecyclerView.Adapter<CartProductAdapter.
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         CartProduct product = cartProducts.get(position);
 
-        // Thiết lập thông tin sản phẩm
+
         holder.txtBrandNameInPayment.setText(product.getBrandName());
         holder.txtProductNameInPayment.setText(product.getName());
         holder.txtProductDescriptionInPayment.setText(String.format("%s, %s", product.getColorName(), product.getSizeName()));
         holder.txtProductPriceInPayment.setText(product.getPrice()+"");
         holder.txtProductQuantityInPayment.setText(String.format("x%d", product.getQuantity()));
-        holder.txtTotalAmountInPayment.setText(product.getPrice()* product.getQuantity()+"");
+        holder.txtTotalAmountInPayment.setText(product.getPrice() * product.getQuantity()+"");
 
         // Tải hình ảnh bằng Glide
         Glide.with(holder.itemView.getContext())
                 .load(product.getImage())
-                .placeholder(R.drawable.error_image) // Hình ảnh placeholder
-                .error(R.drawable.error_image) // Hình ảnh hiển thị khi có lỗi
+                .placeholder(R.drawable.error_image)
+                .error(R.drawable.error_image)
                 .into(holder.imgProductInPayment);
     }
 
