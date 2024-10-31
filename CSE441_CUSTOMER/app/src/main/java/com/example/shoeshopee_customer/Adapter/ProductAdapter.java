@@ -15,7 +15,6 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.bumptech.glide.Glide;
 import com.example.shoeshopee_customer.Model.Color;
 import com.example.shoeshopee_customer.Model.Product;
-//import com.example.shoeshopee_customer.ProductDetailActivity;
 import com.example.shoeshopee_customer.ProductDetailActivity;
 import com.example.shoeshopee_customer.R;
 

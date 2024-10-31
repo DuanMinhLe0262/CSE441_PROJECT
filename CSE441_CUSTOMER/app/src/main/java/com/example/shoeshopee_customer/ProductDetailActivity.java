@@ -167,7 +167,8 @@ public class ProductDetailActivity extends AppCompatActivity {
 
         cartImgBtn.setOnClickListener(v -> {
             Intent intent = new Intent(ProductDetailActivity.this, MainActivity.class);
-            intent.putExtra("fragmentToLoad", "2"); // Truyền thông tin về fragment cần tải
+            intent.putExtra("userId", userId);
+            intent.putExtra("fragmentToLoad", "2");
             startActivity(intent);
         });
 
