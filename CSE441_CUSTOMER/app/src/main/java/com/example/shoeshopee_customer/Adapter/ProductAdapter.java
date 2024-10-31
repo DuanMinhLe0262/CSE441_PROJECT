@@ -16,6 +16,7 @@ import com.bumptech.glide.Glide;
 import com.example.shoeshopee_customer.Model.Color;
 import com.example.shoeshopee_customer.Model.Product;
 //import com.example.shoeshopee_customer.ProductDetailActivity;
+import com.example.shoeshopee_customer.ProductDetailActivity;
 import com.example.shoeshopee_customer.R;
 
 import java.util.List;
@@ -73,10 +74,10 @@ public class ProductAdapter extends RecyclerView.Adapter<ProductAdapter.ProductV
             holder.productImage.setImageResource(R.drawable.load); // Hình ảnh placeholder
         }
         holder.itemView.setOnClickListener(v -> {
-//            Intent intent = new Intent(context, ProductDetailActivity.class);
-//            intent.putExtra("productId", product.getId());
-//            intent.putExtra("userId", userId);
-//            context.startActivity(intent);
+            Intent intent = new Intent(context, ProductDetailActivity.class);
+            intent.putExtra("productId", product.getId());
+            intent.putExtra("userId", userId);
+            context.startActivity(intent);
         });
     }
 
