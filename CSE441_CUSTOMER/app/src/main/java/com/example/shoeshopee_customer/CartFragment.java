@@ -182,7 +182,7 @@ public class CartFragment extends Fragment {
                                         product.setImage(image);
                                         product.setSizeName(sizeName);
                                         product.setQuantity(quantity);
-                                        product.setPrice(price != null ? String.valueOf(price) : "0");
+                                        product.setPrice(price != null ? price : 0.0);
                                         product.setBrandName(brandName); // Thêm thông tin thương hiệu
                                         product.setSelected(false);
                                         productList.add(product); // Thêm sản phẩm vào danh sách

@@ -433,7 +433,7 @@ public class ProductDetailActivity extends AppCompatActivity {
                                             colorName,
                                             linkImage,
                                             sizeName,
-                                            txtProductPriceInBottomSheet.getText().toString(),
+                                            Double.parseDouble(txtProductPriceInBottomSheet.getText().toString()),
                                             brandName,
                                             Integer.parseInt(txtProductQuantityBottomSheet.getText().toString()),
                                             true

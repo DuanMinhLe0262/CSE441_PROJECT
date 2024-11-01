@@ -61,7 +61,7 @@ public class ProductAdapterInCart extends RecyclerView.Adapter<ProductAdapterInC
         // Cập nhật số lượng và giá
         holder.edtProductQuantityInCart.setText(String.valueOf(product.getQuantity()));
         int quantity = product.getQuantity();
-        double price = Double.parseDouble(product.getPrice().toString()) * quantity;
+        double price = product.getPrice() * quantity;
         holder.txtProductToMoneyInCart.setText(formatPrice(price));
         holder.ckProductInCart.setChecked(product.isSelected());
         updateTotalPrice();
@@ -98,7 +98,7 @@ public class ProductAdapterInCart extends RecyclerView.Adapter<ProductAdapterInC
                         holder.edtProductQuantityInCart.setText(String.valueOf(newQuantity)); // Cập nhật số lượng
                         DatabaseReference sizeRef = createRef(product);
                         sizeRef.child("quantity").setValue(newQuantity); // Cập nhật số lượng lên DB
-                        holder.txtProductToMoneyInCart.setText(formatPrice(newQuantity * Double.parseDouble(product.getPrice().toString()))); // Cập nhật giá
+                        holder.txtProductToMoneyInCart.setText(formatPrice(newQuantity * product.getPrice())); // Cập nhật giá
                     }
                     updateTotalPrice();
                 }
@@ -119,7 +119,7 @@ public class ProductAdapterInCart extends RecyclerView.Adapter<ProductAdapterInC
                 product.setQuantity(newQuantity);
                 holder.edtProductQuantityInCart.setText(String.valueOf(newQuantity));
                 sizeRef.child("quantity").setValue(newQuantity);
-                holder.txtProductToMoneyInCart.setText(formatPrice(newQuantity * Double.parseDouble(product.getPrice().toString()))); // Cập nhật giá
+                holder.txtProductToMoneyInCart.setText(formatPrice(newQuantity * product.getPrice())); // Cập nhật giá
             }
             updateTotalPrice();
         });
@@ -258,7 +258,7 @@ public class ProductAdapterInCart extends RecyclerView.Adapter<ProductAdapterInC
         double total = 0;
         for (CartProduct product : productList) {
             if (product.isSelected()) {
-                total += Double.parseDouble(product.getPrice().toString()) * product.getQuantity();
+                total += product.getPrice() * product.getQuantity();
             }
             Log.d("total", total+"");
         }

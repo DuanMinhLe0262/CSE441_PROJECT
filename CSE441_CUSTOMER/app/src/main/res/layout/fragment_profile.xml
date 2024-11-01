@@ -10,7 +10,6 @@
     <ScrollView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_marginTop="50dp"
         >
         <LinearLayout
             android:layout_width="match_parent"
@@ -52,7 +51,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginStart="15dp"
                     android:layout_marginTop="80dp"
-                    android:text="Lam Hien"
+                    android:text="leminhduan0262"
                     android:textStyle="bold"
                     android:textColor="@color/white"
                     app:layout_constraintEnd_toEndOf="parent"
@@ -121,6 +120,7 @@
 
                     <!-- First Item -->
                     <LinearLayout
+                        android:id="@+id/confirmIntentToOrderTracking"
                         android:layout_width="0dp"
                         android:layout_height="match_parent"
                         android:layout_weight="1"
@@ -147,32 +147,7 @@
 
                     <!-- Second Item -->
                     <LinearLayout
-                        android:layout_width="0dp"
-                        android:layout_height="match_parent"
-                        android:layout_weight="1"
-                        android:gravity="center"
-                        android:orientation="vertical">
-
-                        <ImageView
-                            android:layout_width="25dp"
-                            android:layout_height="25dp"
-                            android:layout_gravity="center"
-                            android:layout_marginTop="8dp"
-                            app:srcCompat="@drawable/wait_ship" />
-
-                        <TextView
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:layout_marginTop="4dp"
-                            android:layout_marginBottom="10dp"
-                            android:text="Chờ lấy hàng"
-                            android:textAlignment="center"
-                            android:textColor="@color/black"
-                            android:textSize="10sp" />
-                    </LinearLayout>
-
-                    <!-- Third Item -->
-                    <LinearLayout
+                        android:id="@+id/deliveyIntentToOrderTracking"
                         android:layout_width="0dp"
                         android:layout_height="match_parent"
                         android:layout_weight="1"
@@ -181,7 +156,7 @@
 
                         <ImageView
                             android:layout_width="30dp"
-                            android:layout_height="30dp"
+                            android:layout_height="25dp"
                             android:layout_gravity="center"
                             android:layout_marginTop="8dp"
                             app:srcCompat="@drawable/truck_icon" />
@@ -197,8 +172,9 @@
                             android:textSize="10sp" />
                     </LinearLayout>
 
-                    <!-- Fourth Item -->
+                    <!-- Third Item -->
                     <LinearLayout
+                        android:id="@+id/completeIntentToOrderTracking"
                         android:layout_width="0dp"
                         android:layout_height="match_parent"
                         android:layout_weight="1"
@@ -206,18 +182,45 @@
                         android:orientation="vertical">
 
                         <ImageView
-                            android:layout_width="23dp"
-                            android:layout_height="23dp"
+                            android:layout_width="22dp"
+                            android:layout_height="22dp"
                             android:layout_gravity="center"
                             android:layout_marginTop="8dp"
-                            app:srcCompat="@drawable/feedback_icon" />
+                            app:srcCompat="@drawable/wait_ship" />
 
                         <TextView
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:layout_marginTop="4dp"
                             android:layout_marginBottom="10dp"
-                            android:text="Đánh giá"
+                            android:text="Đã giao hàng"
+                            android:textAlignment="center"
+                            android:textColor="@color/black"
+                            android:textSize="10sp" />
+                    </LinearLayout>
+
+                    <!-- Fourth Item -->
+                    <LinearLayout
+                        android:id="@+id/cancelIntentToOrderTracking"
+                        android:layout_width="0dp"
+                        android:layout_height="match_parent"
+                        android:layout_weight="1"
+                        android:gravity="center"
+                        android:orientation="vertical">
+
+                        <ImageView
+                            android:layout_width="20dp"
+                            android:layout_height="20dp"
+                            android:layout_gravity="center"
+                            android:layout_marginTop="8dp"
+                            app:srcCompat="@drawable/cancel_icon" />
+
+                        <TextView
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="4dp"
+                            android:layout_marginBottom="10dp"
+                            android:text="Đã hủy"
                             android:textAlignment="center"
                             android:textColor="@color/black"
                             android:textSize="10sp" />
