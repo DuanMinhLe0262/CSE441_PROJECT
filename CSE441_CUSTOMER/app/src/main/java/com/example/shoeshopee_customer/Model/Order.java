@@ -8,6 +8,27 @@ public class Order {
     private String customerPhone;
     private String customerName;
     private String customerAddress;
+    private List<CartProduct> products;
+    private Double totalAmount;
+    private String status;
+    private String note;
+    private String time;
+
+    public Order() {
+    }
+
+    public Order(String id, String userId, String customerPhone, String customerName, String customerAddress, List<CartProduct> products, Double totalAmount, String status, String note, String time) {
+        this.id = id;
+        this.userId = userId;
+        this.customerPhone = customerPhone;
+        this.customerName = customerName;
+        this.customerAddress = customerAddress;
+        this.products = products;
+        this.totalAmount = totalAmount;
+        this.status = status;
+        this.note = note;
+        this.time = time;
+    }
 
     public String getId() {
         return id;
@@ -57,11 +78,11 @@ public class Order {
         this.products = products;
     }
 
-    public double getTotalAmount() {
+    public Double getTotalAmount() {
         return totalAmount;
     }
 
-    public void setTotalAmount(double totalAmount) {
+    public void setTotalAmount(Double totalAmount) {
         this.totalAmount = totalAmount;
     }
 
@@ -81,24 +102,12 @@ public class Order {
         this.note = note;
     }
 
-    private List<CartProduct> products;
-    private double totalAmount;
-    private String status;
-    private String note;
-
-    public Order(String id, String userId, String customerPhone, String customerName, String customerAddress, List<CartProduct> products, double totalAmount, String status, String note) {
-        this.id = id;
-        this.userId = userId;
-        this.customerPhone = customerPhone;
-        this.customerName = customerName;
-        this.customerAddress = customerAddress;
-        this.products = products;
-        this.totalAmount = totalAmount;
-        this.status = status;
-        this.note = note;
+    public String getTime() {
+        return time;
     }
 
-    public Order() {
+    public void setTime(String time) {
+        this.time = time;
     }
 
     @Override
@@ -113,6 +122,7 @@ public class Order {
                 ", totalAmount=" + totalAmount +
                 ", status='" + status + '\'' +
                 ", note='" + note + '\'' +
+                ", time='" + time + '\'' +
                 '}';
     }
 }

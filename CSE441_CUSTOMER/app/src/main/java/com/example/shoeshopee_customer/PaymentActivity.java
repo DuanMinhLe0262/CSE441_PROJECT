@@ -1,5 +1,6 @@
 package com.example.shoeshopee_customer;
 
+import android.content.Intent;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.util.Log;
@@ -11,6 +12,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import androidx.activity.EdgeToEdge;
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
@@ -22,9 +24,12 @@ import com.example.shoeshopee_customer.Adapter.ProductAdapterInCart;
 import com.example.shoeshopee_customer.Adapter.ProductAdapterInPayment;
 import com.example.shoeshopee_customer.Model.CartProduct;
 import com.example.shoeshopee_customer.Model.Order;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ServerValue;
+import com.google.firebase.database.ValueEventListener;
 
 import java.text.NumberFormat;
 import java.text.SimpleDateFormat;
@@ -39,8 +44,6 @@ public class PaymentActivity extends AppCompatActivity {
     RecyclerView recyclerviewProductPayment;
     TextView txtTotalProductAmountPayment, txtShipcostPayment, txtdiscountPayment, txtTotalAmountPayment
             , txtTotalAmountPaymentWithButton, txtInfoInPayment, txtPaymentDetail;
-
-
     Button paymentButton;
     Boolean showAddresFill = false;
     List<CartProduct> productList = new ArrayList<>();
@@ -65,13 +68,13 @@ public class PaymentActivity extends AppCompatActivity {
         });
 
         backImgBtn = findViewById(R.id.backImgBtn);
+
         backImgBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 finish();
             }
         });
-        
 
         place_icon = getResources().getDrawable(R.drawable.place_icon);
         setSizeIcon(place_icon);
@@ -116,7 +119,7 @@ public class PaymentActivity extends AppCompatActivity {
         txtTotalAmountPaymentWithButton = findViewById(R.id.txtTotalAmountPaymentWithButton);
         paymentButton = findViewById(R.id.paymentButton);
 
-        linearAddressFill.setVisibility(View.GONE);
+        linearAddressFill.setVisibility(View.VISIBLE);
         linearShowAddressFill.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -146,13 +149,29 @@ public class PaymentActivity extends AppCompatActivity {
         paymentButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                address = edtAddressPayment.getText().toString();
-                name = edtNamePayment.getText().toString();
-                phone = edtPhonePayment.getText().toString();
-                note = edtNotePayment.getText().toString();
+                address = edtAddressPayment.getText().toString().trim();
+                if(address.isEmpty()) {
+                    edtAddressPayment.setError("Vui lòng nhập địa chỉ");
+                    return;
+                }
+                name = edtNamePayment.getText().toString().trim();
+                if(name.isEmpty()){
+                    edtNamePayment.setError("Vui lòng nhập tên");
+                    return;
+                }
+                phone = edtPhonePayment.getText().toString().trim();
+                if(phone.isEmpty()){
+                    edtPhonePayment.setError("Vui lòng nhập số điện thoại");
+                    return;
+                }
+                note = edtNotePayment.getText().toString().trim();
                 DatabaseReference databaseOrder = FirebaseDatabase.getInstance().getReference("orders");
                 // Tạo ID ngẫu nhiên cho đơn hàng
                 String orderId = databaseOrder.push().getKey();
+                long currentTimeMillis = System.currentTimeMillis();
+                // Định dạng thời gian theo định dạng "HH:mm:ss dd:MM:yyyy"
+                SimpleDateFormat sdf = new SimpleDateFormat("HH:mm:ss dd:MM:yyyy", Locale.getDefault());
+                String formattedTime = sdf.format(new Date(currentTimeMillis));
                 Order order = new Order(orderId,
                         userId,
                         phone,
@@ -161,12 +180,16 @@ public class PaymentActivity extends AppCompatActivity {
                         productList,
                         totalAmount,
                         "Chờ xác nhận",
-                        note);
+                        note,
+                        formattedTime);
                 addOrder(order, new OnOrderCompleteListener() {
                     @Override
                     public void onOrderComplete() {
+                        Intent intent = new Intent(PaymentActivity.this, OrderTrackingActivity.class);
+                        intent.putExtra("userId", userId);
+                        startActivity(intent);
+                        finish();
                         for (CartProduct product : productList) {
-                            Log.d("xoassss", "qwedfg");
                             DatabaseReference cartRef = FirebaseDatabase.getInstance().getReference("carts").child(userId);
                             DatabaseReference productRef = cartRef.child("items").child(product.getId());
                             DatabaseReference colorRef = productRef.child("colors").child(product.getColorName());
@@ -194,12 +217,7 @@ public class PaymentActivity extends AppCompatActivity {
         orderRef.child("status").setValue(order.getStatus());
         orderRef.child("total").setValue(order.getTotalAmount());
         orderRef.child("note").setValue(order.getNote());
-        long currentTimeMillis = System.currentTimeMillis();
-
-        // Định dạng thời gian theo định dạng "HH:mm:ss dd:MM:yyyy"
-        SimpleDateFormat sdf = new SimpleDateFormat("HH:mm:ss dd:MM:yyyy", Locale.getDefault());
-        String formattedTime = sdf.format(new Date(currentTimeMillis));
-        orderRef.child("time").setValue(formattedTime);
+        orderRef.child("time").setValue(order.getTime());
         DatabaseReference itemRef = orderRef.child("items");
         for (CartProduct product : productList) {
             DatabaseReference productRef = itemRef.child(product.getId());
@@ -210,6 +228,7 @@ public class PaymentActivity extends AppCompatActivity {
             colorRef.child("price").setValue(product.getPrice());
             colorRef.child("image").setValue(product.getImage());
             sizeRef.child("quantity").setValue(product.getQuantity());
+            updateProductQuantityAfterOrder(product.getId(), product.getColorName(), product.getSizeName(),product.getQuantity());
         }
         listener.onOrderComplete();
     }
@@ -230,4 +249,51 @@ public class PaymentActivity extends AppCompatActivity {
         NumberFormat numberFormat = NumberFormat.getNumberInstance(Locale.US);
         return "₫" + numberFormat.format(price);
     }
+
+    public void updateProductQuantityAfterOrder(String productId, String colorName, String sizeName, int quantityOrdered) {
+        // Lấy tham chiếu đến sản phẩm cụ thể
+        DatabaseReference productQuantityRef = FirebaseDatabase.getInstance().getReference("products")
+                .child(productId)
+                .child("colors")
+                .child(colorName)
+                .child("sizes")
+                .child(sizeName)
+                .child("quantity");
+
+        // Truy vấn giá trị hiện tại của quantity
+        productQuantityRef.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                if (dataSnapshot.exists()) {
+                    // Lấy giá trị hiện tại của quantity
+                    int currentQuantity = dataSnapshot.getValue(Integer.class);
+
+                    // Kiểm tra xem số lượng còn đủ không
+                    if (currentQuantity >= quantityOrdered) {
+                        // Tính số lượng mới
+                        int newQuantity = currentQuantity - quantityOrdered;
+
+                        // Cập nhật số lượng mới vào Firebase
+                        productQuantityRef.setValue(newQuantity)
+                                .addOnSuccessListener(aVoid -> {
+                                    Log.d("FirebaseUpdate", "Số lượng đã được cập nhật thành công.");
+                                })
+                                .addOnFailureListener(e -> {
+                                    Log.e("FirebaseUpdate", "Cập nhật số lượng thất bại: " + e.getMessage());
+                                });
+                    } else {
+                        Log.e("FirebaseUpdate", "Không đủ số lượng để đặt hàng.");
+                    }
+                } else {
+                    Log.e("FirebaseUpdate", "Nút quantity không tồn tại.");
+                }
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+                Log.e("FirebaseUpdate", "Lỗi khi truy vấn: " + databaseError.getMessage());
+            }
+        });
+    }
+
 }
