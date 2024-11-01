@@ -15,7 +15,6 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.shoeshopee_customer.Adapter.ProductOrderTrackingAdapter;
 import com.example.shoeshopee_customer.Model.CartProduct;
 import com.example.shoeshopee_customer.Model.Order;
-import com.example.shoeshopee_customer.R;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -32,6 +31,7 @@ public abstract class BaseOrderFragment extends Fragment {
     private List<Order> orderList;
 
     protected abstract String getOrderStatus();
+    protected abstract String getOrderUserId();
 
     @Nullable
     @Override
@@ -67,7 +67,8 @@ public abstract class BaseOrderFragment extends Fragment {
                 orders.clear(); // Xóa danh sách cũ để cập nhật mới
                 for (DataSnapshot orderSnapshot : snapshot.getChildren()) {
                     String status = orderSnapshot.child("status").getValue(String.class);
-                    if (status != null && status.equals(getOrderStatus())) {
+                    String orderUserId = orderSnapshot.child("userId").getValue(String.class);
+                    if (status != null && status.equals(getOrderStatus()) && getOrderUserId().equals(orderUserId)) {
                         Order order = new Order();
                         order.setId(orderSnapshot.getKey());
                         order.setUserId(orderSnapshot.child("userId").getValue(String.class));

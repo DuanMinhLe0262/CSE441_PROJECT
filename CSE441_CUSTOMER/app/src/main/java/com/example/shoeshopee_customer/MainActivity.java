@@ -1,7 +1,6 @@
 package com.example.shoeshopee_customer;
 
 import android.os.Bundle;
-import android.util.Log;
 import android.view.MenuItem;
 import android.widget.FrameLayout;
 
@@ -49,7 +48,6 @@ public class MainActivity extends AppCompatActivity {
                 loadFragment(CartFragment.newInstance(userId), true);
                 bottomNavigationView.setSelectedItemId(R.id.nav_cart);
                 break;
-
             case "3":
                 loadFragment(ProfileFragment.newInstance(userId), true);
                 bottomNavigationView.setSelectedItemId(R.id.nav_profile);
@@ -64,6 +62,8 @@ public class MainActivity extends AppCompatActivity {
                     loadFragment(HomeFragment.newInstance(userId), false);
                 } else if (itemId == R.id.nav_search) {
                     loadFragment(SearchFragment.newInstance(userId), false);
+                } else if (itemId == R.id.nav_cart) {
+                    loadFragment(CartFragment.newInstance(userId), false);
                 } else {
                     loadFragment(ProfileFragment.newInstance(userId), false);
                 }

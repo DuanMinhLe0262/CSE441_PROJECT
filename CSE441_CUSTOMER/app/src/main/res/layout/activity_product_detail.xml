@@ -259,7 +259,7 @@
             android:layout_weight="1"
             android:background="#EF4C2B"
             android:text="Mua ngay"
-            android:textColor="#000000"
+            android:textColor="@color/white"
             app:backgroundTint="@null" />
 
         <LinearLayout

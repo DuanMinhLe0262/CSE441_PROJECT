@@ -2,10 +2,6 @@ package com.example.shoeshopee_customer;
 
 import android.content.Intent;
 import android.os.Bundle;
-
-import androidx.annotation.NonNull;
-import androidx.fragment.app.Fragment;
-
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -13,6 +9,9 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import androidx.annotation.NonNull;
+import androidx.fragment.app.Fragment;
 
 import com.bumptech.glide.Glide;
 import com.google.firebase.database.DataSnapshot;
@@ -61,7 +60,10 @@ public class ProfileFragment extends Fragment {
         imgAvatar = view.findViewById(R.id.img_avatar); // ImageView cho avatar
 
         // Gọi phương thức để tải dữ liệu người dùng
-        loadUserData();
+        if(userId != null){
+            loadUserData();
+        }
+        checkCustomer();
 
         confirmIntentToOrderTracking.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -84,7 +86,7 @@ public class ProfileFragment extends Fragment {
 
     private void loadUserData() {
         DatabaseReference userRef = FirebaseDatabase.getInstance().getReference("users").child(userId);
-        userRef.addListenerForSingleValueEvent(new ValueEventListener() {
+        userRef.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 if (snapshot.exists()) {
@@ -113,5 +115,14 @@ public class ProfileFragment extends Fragment {
                 Toast.makeText(getActivity(), "Lỗi khi lấy dữ liệu", Toast.LENGTH_SHORT).show();
             }
         });
+    }
+
+    public void checkCustomer(){
+        if(userId == null){
+            Toast.makeText(getActivity(), "Vui lòng đăng nhập", Toast.LENGTH_SHORT).show();
+            Intent intent = new Intent(getContext(), LoginActivity.class);
+            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+            startActivity(intent);
+        }
     }
 }
