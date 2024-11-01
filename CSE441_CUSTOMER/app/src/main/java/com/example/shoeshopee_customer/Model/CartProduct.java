@@ -8,12 +8,12 @@ public class CartProduct implements Serializable {
     private String colorName; // Tên màu sắc
     private String image; // Hình ảnh sản phẩm
     private String sizeName; // Tên kích thước
-    private String price;
+    private double price;
     private String brandName;
     private int quantity; // Số lượng sản phẩm
     private boolean selected;
 
-    public CartProduct(String id, String name, String colorName, String image, String sizeName, String price, String brandName, int quantity, boolean selected) {
+    public CartProduct(String id, String name, String colorName, String image, String sizeName, double price, String brandName, int quantity, boolean selected) {
         this.id = id;
         this.name = name;
         this.colorName = colorName;
@@ -66,11 +66,11 @@ public class CartProduct implements Serializable {
         return sizeName;
     }
 
-    public String getPrice() {
+    public double getPrice() {
         return price;
     }
 
-    public void setPrice(String price) {
+    public void setPrice(double price) {
         this.price = price;
     }
 

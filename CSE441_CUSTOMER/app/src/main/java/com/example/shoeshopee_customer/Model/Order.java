@@ -8,22 +8,6 @@ public class Order {
     private String customerPhone;
     private String customerName;
     private String customerAddress;
-    private List<CartProduct> products;
-    private Double totalAmount;
-    private String status;
-    private String note;
-
-    public Order(String id, String userId, String customerPhone, String customerName, String customerAddress, List<CartProduct> products, Double totalAmount, String status, String note) {
-        this.id = id;
-        this.userId = userId;
-        this.customerPhone = customerPhone;
-        this.customerName = customerName;
-        this.customerAddress = customerAddress;
-        this.products = products;
-        this.totalAmount = totalAmount;
-        this.status = status;
-        this.note = note;
-    }
 
     public String getId() {
         return id;
@@ -73,11 +57,11 @@ public class Order {
         this.products = products;
     }
 
-    public Double getTotalAmount() {
+    public double getTotalAmount() {
         return totalAmount;
     }
 
-    public void setTotalAmount(Double totalAmount) {
+    public void setTotalAmount(double totalAmount) {
         this.totalAmount = totalAmount;
     }
 
@@ -95,6 +79,26 @@ public class Order {
 
     public void setNote(String note) {
         this.note = note;
+    }
+
+    private List<CartProduct> products;
+    private double totalAmount;
+    private String status;
+    private String note;
+
+    public Order(String id, String userId, String customerPhone, String customerName, String customerAddress, List<CartProduct> products, double totalAmount, String status, String note) {
+        this.id = id;
+        this.userId = userId;
+        this.customerPhone = customerPhone;
+        this.customerName = customerName;
+        this.customerAddress = customerAddress;
+        this.products = products;
+        this.totalAmount = totalAmount;
+        this.status = status;
+        this.note = note;
+    }
+
+    public Order() {
     }
 
     @Override

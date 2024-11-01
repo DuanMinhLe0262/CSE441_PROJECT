@@ -43,7 +43,7 @@ public class ProductAdapterInPayment extends RecyclerView.Adapter<ProductAdapter
         holder.txtPrice.setText(String.valueOf(product.getPrice()));
         holder.txtQuantity.setText("x" + product.getQuantity());
         holder.txtNoteQuantity.setText("(" + product.getQuantity() + " sản phẩm)");
-        holder.txtTotalAmount.setText(String.valueOf(Double.parseDouble(product.getPrice()) * product.getQuantity()));
+        holder.txtTotalAmount.setText(String.valueOf(product.getPrice() * product.getQuantity()));
         Glide.with(context)
                 .load(product.getImage())
                 .placeholder(R.drawable.load)

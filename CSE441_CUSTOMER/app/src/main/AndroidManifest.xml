@@ -24,7 +24,7 @@
             android:name=".ProductDetailActivity"
             android:exported="false" />
         <activity
-            android:name=".HomeFragment"
+            android:name=".OrderTrackingActivity"
             android:exported="false" />
         <activity
             android:name=".ResetActivity"
