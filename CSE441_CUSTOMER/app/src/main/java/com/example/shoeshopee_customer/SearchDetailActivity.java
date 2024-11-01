@@ -1,6 +1,7 @@
 package com.example.shoeshopee_customer;
 
 import android.os.Bundle;
+import android.widget.ImageView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -28,11 +29,15 @@ public class SearchDetailActivity extends AppCompatActivity {
     private List<Product> productList;
     private DatabaseReference databaseReference;
     private String userId = "";
+    private ImageView backImgBtn;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_search_detail);
+
+        backImgBtn = findViewById(R.id.backImgBtn);
+        backImgBtn.setOnClickListener(v -> finish());
 
         query = getIntent().getStringExtra("query");
 
