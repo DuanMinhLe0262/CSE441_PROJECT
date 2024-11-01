@@ -15,6 +15,12 @@
         android:theme="@style/Theme.ShoeShopee_Customer"
         tools:targetApi="31">
         <activity
+            android:name=".ChangeProfileActivity"
+            android:exported="false" />
+        <activity
+            android:name=".SettingActivity"
+            android:exported="false" />
+        <activity
             android:name=".SearchDetailActivity"
             android:exported="false" />
         <activity

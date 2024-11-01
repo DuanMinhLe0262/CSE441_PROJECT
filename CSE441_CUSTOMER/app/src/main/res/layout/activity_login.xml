@@ -76,30 +76,6 @@
                 android:paddingVertical="16dp"
                 android:inputType="textPassword" />
 
-            <ImageView
-                android:layout_width="40dp"
-                android:layout_height="40dp"
-                android:layout_gravity="center_vertical"
-                android:src="@drawable/invisible_icon"
-                android:contentDescription="Hiển thị mật khẩu"
-                android:padding="10dp" />
-
-
-            <View
-                android:layout_width="1dp"
-                android:layout_height="30dp"
-                android:layout_gravity="center"
-                android:background="@android:color/darker_gray" />
-
-            <TextView
-                android:id="@+id/textViewForgotPassword"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/login_to_reset"
-                android:textSize="17sp"
-                android:layout_gravity="center_vertical"
-                android:textColor="@color/black"
-                android:padding="3dp" />
 
         </LinearLayout>
 
@@ -146,31 +122,6 @@
                 android:background="@android:color/darker_gray" />
 
         </LinearLayout>
-
-
-        <Button
-            android:id="@+id/btnLoginWithGg"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Tiếp tục với Google"
-            android:padding="12dp"
-            android:background = "@drawable/btn_square_bg"
-            app:backgroundTint="@null"
-            android:layout_marginBottom="15dp"
-            android:textSize="16dp"
-            android:textColor="@color/black" />
-
-        <Button
-            android:id="@+id/btnLoginWithFb"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Tiếp tục với Facebook"
-            android:padding="12dp"
-            android:layout_marginBottom="15dp"
-            android:textSize="16dp"
-            android:background = "@drawable/btn_square_bg"
-            app:backgroundTint="@null"
-            android:textColor="@color/black" />
 
 
         <TextView

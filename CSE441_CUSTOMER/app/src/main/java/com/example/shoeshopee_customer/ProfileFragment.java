@@ -3,12 +3,23 @@ package com.example.shoeshopee_customer;
 import android.content.Intent;
 import android.os.Bundle;
 
+import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.TextView;
+import android.widget.Toast;
+
+import com.bumptech.glide.Glide;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 
 public class ProfileFragment extends Fragment {
     String userId = "";
@@ -17,6 +28,9 @@ public class ProfileFragment extends Fragment {
             deliveyIntentToOrderTracking,
             completeIntentToOrderTracking,
             cancelIntentToOrderTracking;
+    ImageView settingBtn;
+    ImageView imgAvatar; // ImageView cho avatar
+    TextView textViewUsername, textViewDisplayName;
 
     public static ProfileFragment newInstance(String userId) {
         ProfileFragment fragment = new ProfileFragment();
@@ -31,13 +45,23 @@ public class ProfileFragment extends Fragment {
                              Bundle savedInstanceState) {
         if (getArguments() != null) {
             userId = getArguments().getString(ARG_USER_ID);
-            // Use the userId as needed
         }
+
         View view = inflater.inflate(R.layout.fragment_profile, container, false);
+
+        // Khởi tạo các thành phần giao diện
         confirmIntentToOrderTracking = view.findViewById(R.id.confirmIntentToOrderTracking);
         deliveyIntentToOrderTracking = view.findViewById(R.id.deliveyIntentToOrderTracking);
         completeIntentToOrderTracking = view.findViewById(R.id.completeIntentToOrderTracking);
         cancelIntentToOrderTracking = view.findViewById(R.id.cancelIntentToOrderTracking);
+        settingBtn = view.findViewById(R.id.settingBtn);
+
+        textViewUsername = view.findViewById(R.id.textView9); // TextView cho tên người dùng
+        textViewDisplayName = view.findViewById(R.id.textView14); // TextView cho tên hiển thị
+        imgAvatar = view.findViewById(R.id.img_avatar); // ImageView cho avatar
+
+        // Gọi phương thức để tải dữ liệu người dùng
+        loadUserData();
 
         confirmIntentToOrderTracking.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -47,6 +71,47 @@ public class ProfileFragment extends Fragment {
                 startActivity(intent);
             }
         });
+
+        settingBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                startActivity(new Intent(getActivity(), SettingActivity.class));
+            }
+        });
+
         return view;
+    }
+
+    private void loadUserData() {
+        DatabaseReference userRef = FirebaseDatabase.getInstance().getReference("users").child(userId);
+        userRef.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                if (snapshot.exists()) {
+                    String username = snapshot.child("name").getValue(String.class); // Lấy tên người dùng
+                    String displayName = snapshot.child("email").getValue(String.class); // Lấy tên hiển thị
+                    String avatarUrl = snapshot.child("avatarUrl").getValue(String.class); // Lấy URL ảnh đại diện
+
+                    // Cập nhật giao diện với thông tin người dùng
+                    textViewUsername.setText(username != null ? username : "Tên người dùng");
+                    textViewDisplayName.setText(displayName != null ? displayName : "@email");
+
+                    // Tải ảnh đại diện vào ImageView
+                    if (avatarUrl != null && !avatarUrl.isEmpty()) {
+                        Glide.with(getActivity())
+                                .load(avatarUrl) // URL của ảnh đại diện
+                                .placeholder(R.drawable.account_icon) // Hình ảnh hiển thị trong khi đang tải
+                                .into(imgAvatar); // ImageView cho avatar
+                    }
+                } else {
+                    Toast.makeText(getActivity(), "Không tìm thấy thông tin người dùng", Toast.LENGTH_SHORT).show();
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+                Toast.makeText(getActivity(), "Lỗi khi lấy dữ liệu", Toast.LENGTH_SHORT).show();
+            }
+        });
     }
 }

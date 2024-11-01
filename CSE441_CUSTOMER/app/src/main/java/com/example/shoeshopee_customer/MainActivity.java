@@ -49,11 +49,8 @@ public class MainActivity extends AppCompatActivity {
                 loadFragment(CartFragment.newInstance(userId), true);
                 bottomNavigationView.setSelectedItemId(R.id.nav_cart);
                 break;
+
             case "3":
-                loadFragment(NotificationFragment.newInstance(userId), true);
-                bottomNavigationView.setSelectedItemId(R.id.nav_notification);
-                break;
-            case "4":
                 loadFragment(ProfileFragment.newInstance(userId), true);
                 bottomNavigationView.setSelectedItemId(R.id.nav_profile);
                 break;
@@ -67,10 +64,6 @@ public class MainActivity extends AppCompatActivity {
                     loadFragment(HomeFragment.newInstance(userId), false);
                 } else if (itemId == R.id.nav_search) {
                     loadFragment(SearchFragment.newInstance(userId), false);
-                } else if (itemId == R.id.nav_cart) {
-                    loadFragment(CartFragment.newInstance(userId), false);
-                } else if (itemId == R.id.nav_notification) {
-                    loadFragment(NotificationFragment.newInstance(userId), false);
                 } else {
                     loadFragment(ProfileFragment.newInstance(userId), false);
                 }
