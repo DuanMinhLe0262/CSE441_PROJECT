@@ -2,11 +2,6 @@ package com.example.shoeshopee_customer;
 
 import android.content.Intent;
 import android.os.Bundle;
-import androidx.annotation.NonNull;
-import androidx.fragment.app.Fragment;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
-
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -17,10 +12,13 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.example.shoeshopee_customer.Adapter.ProductAdapter;
+import androidx.annotation.NonNull;
+import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+
 import com.example.shoeshopee_customer.Adapter.ProductAdapterInCart;
 import com.example.shoeshopee_customer.Model.CartProduct;
-import com.example.shoeshopee_customer.Model.Product;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -73,12 +71,13 @@ public class CartFragment extends Fragment {
 
         if (getArguments() != null) {
             userId = getArguments().getString(ARG_USER_ID);
-            // Use the userId as needed
         }
+        checkCustomer();
+
         adapter = new ProductAdapterInCart(getContext(), productList, userId, totalAmountValue);
         recyclerView.setAdapter(adapter);
         // Fetch products from Firebase
-        fetchProductsFromFirebase(userId);
+        fetchProductsFromFirebase();
 
         selectAllCheckBox.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -118,9 +117,9 @@ public class CartFragment extends Fragment {
     }
 
 
-    private void fetchProductsFromFirebase(String userId) {
+    private void fetchProductsFromFirebase() {
         DatabaseReference brandsReference = FirebaseDatabase.getInstance().getReference("brands");
-        brandsReference.addListenerForSingleValueEvent(new ValueEventListener() {
+        brandsReference.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot brandsSnapshot) {
                 Map<String, String> brandMap = new HashMap<>();
@@ -131,7 +130,7 @@ public class CartFragment extends Fragment {
                         brandMap.put(brandId.trim(), brandName);
                     }
                 }
-                fetchCartProducts(userId, brandMap);
+                fetchCartProducts(brandMap);
             }
 
             @Override
@@ -141,7 +140,7 @@ public class CartFragment extends Fragment {
         });
     }
 
-    private void fetchCartProducts(String userId, Map<String, String> brandMap) {
+    private void fetchCartProducts(Map<String, String> brandMap) {
         DatabaseReference cartReference = FirebaseDatabase.getInstance().getReference("carts");
         cartReference.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
@@ -150,22 +149,26 @@ public class CartFragment extends Fragment {
 
                 for (DataSnapshot cartSnapshot : snapshot.getChildren()) {
                     String cartUserId = cartSnapshot.getKey();
+                    Log.d("cart", cartUserId + "");
 
-                    // Kiểm tra nếu user_id của giỏ hàng trùng với userId hiện tại
-                    if (userId.equals(cartUserId)) {
+                    // Kiểm tra nếu userId và cartUserId không bị null và trùng nhau
+                    if (userId != null && userId.equals(cartUserId)) {
                         DataSnapshot itemsSnapshot = cartSnapshot.child("items");
+
                         for (DataSnapshot productSnapshot : itemsSnapshot.getChildren()) {
                             String productId = productSnapshot.getKey();
                             String productName = productSnapshot.child("productName").getValue(String.class);
                             String brandId = productSnapshot.child("brandId").getValue(String.class);
-                            String brandName = brandMap.get(brandId);
-                            Log.d("branasdf", brandName+" ");
+                            String brandName = (brandId != null) ? brandMap.get(brandId) : null;
+
+                            Log.d("brand", brandName + " ");
 
                             // Chỉ lấy sản phẩm nếu thương hiệu tồn tại
                             if (brandName != null) {
                                 DataSnapshot colorsSnapshot = productSnapshot.child("colors");
+
                                 for (DataSnapshot colorSnapshot : colorsSnapshot.getChildren()) {
-                                    String colorName = colorSnapshot.getKey(); // Tên màu
+                                    String colorName = colorSnapshot.getKey();
                                     String image = colorSnapshot.child("image").getValue(String.class);
                                     Double price = colorSnapshot.child("price").getValue(Double.class);
 
@@ -174,18 +177,20 @@ public class CartFragment extends Fragment {
                                         String sizeName = sizeSnapshot.getKey();
                                         Integer quantity = sizeSnapshot.child("quantity").getValue(Integer.class);
 
-                                        // Tạo đối tượng sản phẩm mới
-                                        CartProduct product = new CartProduct();
-                                        product.setId(productId);
-                                        product.setName(productName);
-                                        product.setColorName(colorName);
-                                        product.setImage(image);
-                                        product.setSizeName(sizeName);
-                                        product.setQuantity(quantity);
-                                        product.setPrice(price != null ? price : 0.0);
-                                        product.setBrandName(brandName); // Thêm thông tin thương hiệu
-                                        product.setSelected(false);
-                                        productList.add(product); // Thêm sản phẩm vào danh sách
+                                        // Kiểm tra `quantity` và `sizeName` trước khi tạo đối tượng sản phẩm
+                                        if (sizeName != null && quantity != null) {
+                                            CartProduct product = new CartProduct();
+                                            product.setId(productId);
+                                            product.setName(productName != null ? productName : "N/A");
+                                            product.setColorName(colorName);
+                                            product.setImage(image);
+                                            product.setSizeName(sizeName);
+                                            product.setQuantity(quantity);
+                                            product.setPrice(price != null ? price : 0.0);
+                                            product.setBrandName(brandName);
+                                            product.setSelected(false);
+                                            productList.add(product); // Thêm sản phẩm vào danh sách
+                                        }
                                     }
                                 }
                             }
@@ -193,6 +198,7 @@ public class CartFragment extends Fragment {
                         break; // Dừng vòng lặp khi đã tìm thấy giỏ hàng của người dùng
                     }
                 }
+
                 Log.d("asdfghj", productList.size()+"");
                 if (productList.isEmpty()){
                     imgWhenCartEmpty.setVisibility(View.VISIBLE);
@@ -222,6 +228,15 @@ public class CartFragment extends Fragment {
         } catch (NumberFormatException e) {
             e.printStackTrace();
             return 0.0; // Trả về 0 nếu có lỗi chuyển đổi
+        }
+    }
+
+    public void checkCustomer(){
+        if(userId == null){
+            Toast.makeText(getActivity(), "Vui lòng đăng nhập", Toast.LENGTH_SHORT).show();
+            Intent intent = new Intent(getContext(), LoginActivity.class);
+            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+            startActivity(intent);
         }
     }
 }

@@ -2,7 +2,9 @@ package com.example.shoeshopee_customer;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.view.View;
 import android.widget.ImageView;
+import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
@@ -23,6 +25,7 @@ public class OrderTrackingActivity extends AppCompatActivity {
     TabLayout tabLayout;
     ViewPager2 viewPager;
     String userId = "";
+
     ImageView backBtn;
 
     @Override
@@ -39,11 +42,13 @@ public class OrderTrackingActivity extends AppCompatActivity {
         });
 
         backBtn = findViewById(R.id.backBtn);
-        backBtn.setOnClickListener(v -> {
-            Intent intent = new Intent(this, MainActivity.class);
-            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-            startActivity(intent);
+        backBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                finish();
+            }
         });
+
 
         tabLayout = findViewById(R.id.tabLayout);
         viewPager = findViewById(R.id.viewPager);
@@ -56,10 +61,10 @@ public class OrderTrackingActivity extends AppCompatActivity {
         }
 
         List<Fragment> fragments = new ArrayList<>();
-        fragments.add(ConfirmFragment.newInstance());
-        fragments.add(DeliveryFragment.newInstance()); // Bạn cần tạo Fragment này
-        fragments.add(CompleteFragment.newInstance()); // Bạn cần tạo Fragment này
-        fragments.add(CancelFragment.newInstance()); // Bạn cần tạo Fragment này
+        fragments.add(ConfirmFragment.newInstance(userId));
+        fragments.add(DeliveryFragment.newInstance(userId)); // Bạn cần tạo Fragment này
+        fragments.add(CompleteFragment.newInstance(userId)); // Bạn cần tạo Fragment này
+        fragments.add(CancelFragment.newInstance(userId)); // Bạn cần tạo Fragment này
 
         ViewpagerOrdertrackingAdapter adapter = new ViewpagerOrdertrackingAdapter(this, fragments);
         viewPager.setAdapter(adapter);
@@ -88,6 +93,17 @@ public class OrderTrackingActivity extends AppCompatActivity {
         super.onBackPressed();
         Intent intent = new Intent(this, MainActivity.class);
         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+        intent.putExtra("fragmentToLoad", "0");
+        intent.putExtra("userId", userId);
         startActivity(intent);
+    }
+
+    public void checkCustomer(){
+        if(userId == null){
+            Toast.makeText(this, "Vui lòng đăng nhập", Toast.LENGTH_SHORT).show();
+            Intent intent = new Intent(OrderTrackingActivity.this, LoginActivity.class);
+            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+            startActivity(intent);
+        }
     }
 }
