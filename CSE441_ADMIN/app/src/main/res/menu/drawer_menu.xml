@@ -6,32 +6,27 @@
 
         <item
             android:id="@+id/nav_home"
-            android:icon="@drawable/direction_24_icon"
+            android:icon="@drawable/home_outlined"
             android:title="Trang chủ" />
 
         <item
             android:id="@+id/nav_brand"
-            android:icon="@drawable/direction_24_icon"
+            android:icon="@drawable/brand_icon"
             android:title="Thương hiệu"/>
 
         <item
             android:id="@+id/nav_product"
-            android:icon="@drawable/direction_24_icon"
+            android:icon="@drawable/product_icon"
             android:title="Sản phẩm"/>
 
         <item
             android:id="@+id/nav_order"
-            android:icon="@drawable/direction_24_icon"
+            android:icon="@drawable/order_icon"
             android:title="Đơn hàng"/>
 
         <item
-            android:id="@+id/nav_user"
-            android:icon="@drawable/direction_24_icon"
-            android:title="Người dùng"/>
-
-        <item
             android:id="@+id/nav_Statistic"
-            android:icon="@drawable/direction_24_icon"
+            android:icon="@drawable/chart_icon"
             android:title="Thống kê"/>
 
     </group>

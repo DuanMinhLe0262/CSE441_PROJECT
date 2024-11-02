@@ -10,24 +10,26 @@
 
     <ScrollView
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent"
+        android:layout_marginTop="20dp">
 
         <LinearLayout
             android:orientation="vertical"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:padding="16dp">
+            android:layout_height="wrap_content">
 
             <!-- Product Name TextInputLayout -->
             <com.google.android.material.textfield.TextInputLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="Product Name">
+                android:paddingHorizontal="16dp"
+                android:hint="Tên sản phẩm">
 
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/et_product_name"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
+                    android:layout_height="50dp"
+                    android:textSize="13sp"
                     android:inputType="text"/>
             </com.google.android.material.textfield.TextInputLayout>
 
@@ -36,20 +38,22 @@
                 android:id="@+id/spinner_brand"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:paddingHorizontal="16dp"
                 android:layout_marginTop="16dp"/>
 
             <!-- Product Description TextInputLayout -->
             <com.google.android.material.textfield.TextInputLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="Product Description">
+                android:paddingHorizontal="16dp"
+                android:hint="Mô tả sản phẩm">
 
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/et_product_description"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:inputType="textMultiLine"
-                    android:minLines="3"/>
+                    android:layout_height="50dp"
+                    android:textSize="13sp"
+                    android:inputType="textMultiLine"/>
             </com.google.android.material.textfield.TextInputLayout>
 
             <!-- Options TextView -->
@@ -57,7 +61,8 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:paddingTop="16dp"
-                android:text="Options"
+                android:paddingHorizontal="10dp"
+                android:text="Danh sách lựa chọn"
                 android:textSize="16sp"
                 android:textStyle="bold"/>
 
@@ -74,18 +79,20 @@
                 android:id="@+id/btn_add_option"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Add Option"/>
+                android:textSize="12sp"
+                android:layout_marginStart="16sp"
+                android:text="Thêm lựa chọn"/>
 
             <!-- Button to add product -->
             <Button
                 android:id="@+id/btn_add_product"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Add Product"
+                android:textSize="12sp"
+                android:text="Thêm sản phẩm"
                 android:layout_gravity="center"
                 android:layout_marginTop="46dp"/>
 
         </LinearLayout>
-
     </ScrollView>
 </LinearLayout>
