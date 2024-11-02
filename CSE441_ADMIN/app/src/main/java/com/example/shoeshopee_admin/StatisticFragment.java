@@ -40,7 +40,8 @@ public class StatisticFragment extends Fragment {
     private BarChart productBarChart;
     private BarChart brandBarChart;
 
-    private String[] xMonths = {"Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"};
+    private List<String> xMonths = new ArrayList<>(Arrays.asList("Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"));
+
     private List<String> productNames = new ArrayList<>();
     private List<String> brandNames = new ArrayList<>();
 
@@ -79,16 +80,23 @@ public class StatisticFragment extends Fragment {
         productBarChart = view.findViewById(R.id.productChart);
         brandBarChart = view.findViewById(R.id.brandChart);
 
-        setupBarChart(monthlyBarChart, xMonths);
-        setupBarChart(productBarChart, productNames.toArray(new String[0]));
-        setupBarChart(brandBarChart, brandNames.toArray(new String[0]));
-
         // Setup Spinner
         ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(getContext(),
                 R.array.statistics_options, android.R.layout.simple_spinner_item);
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         statisticsSpinner.setAdapter(adapter);
-        fetchOrderData();
+
+        fetchOrderData(new DataFetchListener() {
+            @Override
+            public void onDataFetched(float[] monthlyRevenue, float[] productRevenue, List<String> productNames, float[] brandRevenue, List<String> brandNames) {
+                setupBarChart(monthlyBarChart, xMonths);
+                setupBarChart(productBarChart, productNames);
+                setupBarChart(brandBarChart, brandNames);
+            }
+        });
+
+        Log.d("products", productNames.toString());
+        Log.d("brands", brandNames.toString());
 
         statisticsSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
@@ -104,16 +112,13 @@ public class StatisticFragment extends Fragment {
                         monthlyBarChart.setVisibility(View.GONE);
                         productBarChart.setVisibility(View.VISIBLE);
                         brandBarChart.setVisibility(View.GONE);
-                        Log.d("productttt", Arrays.toString(productNames.toArray()));
-                        Log.d("productttt1", Arrays.toString(productNames.toArray(new String[0])));
-                        Log.d("reven", productRevenue.toString());
-                        updateChart(productBarChart, productRevenue, productNames.toArray(new String[0]));
+                        updateChart(productBarChart, productRevenue, productNames);
                         break;
                     case 2: // Doanh thu theo thương hiệu
                         monthlyBarChart.setVisibility(View.GONE);
                         productBarChart.setVisibility(View.GONE);
                         brandBarChart.setVisibility(View.VISIBLE);
-                        updateChart(brandBarChart, brandRevenue, brandNames.toArray(new String[0]));
+                        updateChart(brandBarChart, brandRevenue, brandNames);
                         break;
                 }
             }
@@ -127,9 +132,9 @@ public class StatisticFragment extends Fragment {
         return view;
     }
 
-    private void setupBarChart(BarChart barChart, String[] xValues) {
+    private void setupBarChart(BarChart barChart, List<String> xValues) {
         YAxis yAxis = barChart.getAxisLeft();
-        yAxis.setAxisMaximum(3000000f); // Thay đổi giá trị tối đa tùy theo doanh thu cao nhất
+        yAxis.setAxisMaximum(30000000f); // Thay đổi giá trị tối đa tùy theo doanh thu cao nhất
         yAxis.setAxisLineWidth(2f);
         yAxis.setAxisLineColor(Color.BLACK);
         yAxis.setLabelCount(10, true);
@@ -139,10 +144,9 @@ public class StatisticFragment extends Fragment {
         barChart.getXAxis().setGranularity(1f);
         barChart.getXAxis().setGranularityEnabled(true);
         barChart.getDescription().setEnabled(false);
-        Log.d("brandđ", brandNames.toString());
     }
 
-    private void fetchOrderData() {
+    private void fetchOrderData(DataFetchListener listener) {
         DatabaseReference ordersRef = FirebaseDatabase.getInstance().getReference("orders");
 
         ordersRef.addValueEventListener(new ValueEventListener() {
@@ -150,7 +154,7 @@ public class StatisticFragment extends Fragment {
             public void onDataChange(DataSnapshot dataSnapshot) {
                 Arrays.fill(monthlyRevenue, 0);
 
-                // Khởi tạo danh sách cho sản phẩm và thương hiệu
+                // Initialize product and brand lists
                 if (productNames == null) {
                     productNames = new ArrayList<>();
                 }
@@ -158,90 +162,115 @@ public class StatisticFragment extends Fragment {
                     brandNames = new ArrayList<>();
                 }
 
-                // Reset doanh thu
-                if (productRevenue == null) {
-                    productRevenue = new float[productNames.size()];
-                } else {
-                    Arrays.fill(productRevenue, 0);
-                }
+                // Reset revenue arrays
+                productRevenue = new float[productNames.size()];
+                brandRevenue = new float[brandNames.size()];
+                Arrays.fill(productRevenue, 0);
+                Arrays.fill(brandRevenue, 0);
 
-                if (brandRevenue == null) {
-                    brandRevenue = new float[brandNames.size()];
-                } else {
-                    Arrays.fill(brandRevenue, 0);
-                }
-
-                // Kiểm tra nếu không có dữ liệu
+                // Check if there is data
                 if (!dataSnapshot.exists()) {
-                    // Nếu không có dữ liệu, không làm gì cả
                     return;
                 }
 
                 for (DataSnapshot orderSnapshot : dataSnapshot.getChildren()) {
-                    Order order = orderSnapshot.getValue(Order.class);
+                    Order order = new Order();
+
+                    order.setId(orderSnapshot.getKey());
+                    order.setTotal(orderSnapshot.child("total").getValue(Double.class));
+                    order.setNote(orderSnapshot.child("note").getValue(String.class));
+                    order.setAddress(orderSnapshot.child("address").getValue(String.class));
+                    order.setPhone(orderSnapshot.child("phone").getValue(String.class));
+                    order.setName(orderSnapshot.child("name").getValue(String.class));
+                    order.setTime(orderSnapshot.child("time").getValue(String.class));
+                    order.setStatus(orderSnapshot.child("status").getValue(String.class));
+
+                    // Initialize total revenue for this order
+                    double orderTotal = 0;
+
+                    for (DataSnapshot itemSnapshot : orderSnapshot.child("items").getChildren()) {
+                        // Extract product details
+                        String productId = itemSnapshot.getKey();
+                        String productName = itemSnapshot.child("name").getValue(String.class);
+                        String brand = itemSnapshot.child("brand").getValue(String.class);
+
+                        for (DataSnapshot colorSnapshot : itemSnapshot.child("colors").getChildren()) {
+                            String colorName = colorSnapshot.getKey();
+                            double price = colorSnapshot.child("price").getValue(Double.class);
+
+                            // Get available sizes
+                            for (DataSnapshot sizeSnapshot : colorSnapshot.child("sizes").getChildren()) {
+                                int size = Integer.parseInt(sizeSnapshot.getKey());
+                                int quantity = sizeSnapshot.child("quantity").getValue(Integer.class);
+
+                                orderTotal += price * quantity;
+                            }
+                        }
+                    }
+
+                    order.setTotal(orderTotal);
+
                     if (order != null && order.getTime() != null && "Đã giao hàng".equals(order.getStatus())) {
-                        // Doanh thu theo tháng
+                        // Monthly revenue calculation
                         String[] timeParts = order.getTime().split(" ");
                         if (timeParts.length >= 2) {
                             String[] dateParts = timeParts[1].split(":");
                             if (dateParts.length >= 3) {
                                 int month = Integer.parseInt(dateParts[1]) - 1;
-                                monthlyRevenue[month] += order.getTotal();
+                                monthlyRevenue[month] += orderTotal;
                             }
                         }
 
-                        // Doanh thu theo sản phẩm và thương hiệu
-                        for (CartProduct product : order.getItems().values()) {
-                            String productName = product.getName();
-                            String brandName = product.getBrandName();
+                        // Revenue by product and brand
+                        for (DataSnapshot itemSnapshot : orderSnapshot.child("items").getChildren()) {
+                            String productName = itemSnapshot.child("name").getValue(String.class);
+                            String brandName = itemSnapshot.child("brand").getValue(String.class);
 
-                            // Tính doanh thu cho sản phẩm
+                            // Product revenue
                             int productIndex = productNames.indexOf(productName);
                             if (productIndex == -1) {
                                 productNames.add(productName);
-                                productIndex = productNames.size() - 1; // Thêm mới sản phẩm vào danh sách
+                                productIndex = productNames.size() - 1;
+                                productRevenue = Arrays.copyOf(productRevenue, productRevenue.length + 1); // Expand if necessary
                             }
 
-                            // Cập nhật doanh thu cho sản phẩm
-                            if (productRevenue.length <= productIndex) {
-                                productRevenue = Arrays.copyOf(productRevenue, productIndex + 1); // Mở rộng mảng nếu cần
+                            double totalProductRevenue = 0;
+                            for (DataSnapshot colorSnapshot : itemSnapshot.child("colors").getChildren()) {
+                                for (DataSnapshot sizeSnapshot : colorSnapshot.child("sizes").getChildren()) {
+                                    int quantity = sizeSnapshot.child("quantity").getValue(Integer.class);
+                                    double price = colorSnapshot.child("price").getValue(Double.class);
+                                    totalProductRevenue += price * quantity;
+                                }
                             }
-                            productRevenue[productIndex] += product.getPrice() * product.getQuantity();
+                            productRevenue[productIndex] += totalProductRevenue;
 
-                            // Tính doanh thu cho thương hiệu
+                            // Brand revenue
                             int brandIndex = brandNames.indexOf(brandName);
                             if (brandIndex == -1) {
                                 brandNames.add(brandName);
-                                brandIndex = brandNames.size() - 1; // Thêm mới thương hiệu vào danh sách
+                                Log.d("brandName", brandNames.toString());
+                                brandIndex = brandNames.size() - 1;
+                                brandRevenue = Arrays.copyOf(brandRevenue, brandRevenue.length + 1); // Expand if necessary
                             }
+                            brandRevenue[brandIndex] += totalProductRevenue;
 
-                            // Cập nhật doanh thu cho thương hiệu
-                            if (brandRevenue.length <= brandIndex) {
-                                brandRevenue = Arrays.copyOf(brandRevenue, brandIndex + 1); // Mở rộng mảng nếu cần
-                            }
-                            brandRevenue[brandIndex] += product.getPrice() * product.getQuantity();
+
                         }
+                        listener.onDataFetched(monthlyRevenue, productRevenue, productNames, brandRevenue, brandNames);
                     }
                 }
-
-                // Cập nhật biểu đồ
-                updateChart(monthlyBarChart, monthlyRevenue, xMonths);
-                updateChart(productBarChart, productRevenue, productNames.toArray(new String[0]));
-                updateChart(brandBarChart, brandRevenue, brandNames.toArray(new String[0]));
-                Log.d("productttt0", productNames.toString());
-                Log.d("brandđ0", brandNames.toString());
             }
-
 
             @Override
             public void onCancelled(DatabaseError databaseError) {
-                // Xử lý lỗi
+                // Handle error
             }
         });
     }
 
-    private void updateChart(BarChart barChart, float[] revenue, String[] xValues) {
-        if (revenue == null || xValues == null || revenue.length == 0 || xValues.length == 0) {
+
+    private void updateChart(BarChart barChart, float[] revenue, List<String> xValues) {
+        if (revenue == null || xValues == null || revenue.length == 0 || xValues.size() == 0) {
             return; // Không cập nhật biểu đồ nếu không có dữ liệu
         }
 
@@ -255,6 +284,9 @@ public class StatisticFragment extends Fragment {
         BarData barData = new BarData(dataSet);
         barChart.setData(barData);
         barChart.invalidate();
+    }
+    public interface DataFetchListener {
+        void onDataFetched(float[] monthlyRevenue, float[] productRevenue, List<String> productNames, float[] brandRevenue, List<String> brandNames);
     }
 
 }

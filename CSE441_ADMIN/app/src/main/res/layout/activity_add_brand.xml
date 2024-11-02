@@ -92,6 +92,7 @@
             android:id="@+id/buttonUploadBrand"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:textColor="@color/white"
             android:background="@drawable/btn_bg"
             app:backgroundTint="@null"
             android:text="Thêm" />

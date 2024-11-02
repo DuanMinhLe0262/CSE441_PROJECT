@@ -12,10 +12,11 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.shoeshopee_admin.Model.Order;
 import com.example.shoeshopee_admin.OrderDetailActivity;
-import com.example.shoeshopee_admin.ProductDetailActivity;
 import com.example.shoeshopee_admin.R;
 
+import java.text.NumberFormat;
 import java.util.List;
+import java.util.Locale;
 
 public class OrderAdapter extends RecyclerView.Adapter<OrderAdapter.OrderViewHolder> {
 
@@ -38,11 +39,11 @@ public class OrderAdapter extends RecyclerView.Adapter<OrderAdapter.OrderViewHol
     @Override
     public void onBindViewHolder(@NonNull OrderViewHolder holder, int position) {
         Order order = orderList.get(position);
-        holder.orderIdTextView.setText("Order ID: " + order.getId());
-        holder.customerNameTextView.setText("Customer: " + order.getName());
-        holder.totalAmountTextView.setText("Total: " + order.getTotal());
-        holder.statusTextView.setText("Status: " + order.getStatus());
-        holder.timeTextView.setText("Time: " + order.getTime());
+        holder.orderIdTextView.setText("Mã đơn hàng: " + order.getId());
+        holder.customerNameTextView.setText("Tên khách hàng: " + order.getName());
+        holder.totalAmountTextView.setText("Tổng tiền: " + formatPrice(order.getTotal()));
+        holder.statusTextView.setText("Trạng thái: " + order.getStatus());
+        holder.timeTextView.setText("Thời gian đặt hàng: " + order.getTime());
 
         holder.itemView.setOnClickListener(v -> {
             Intent intent = new Intent(context, OrderDetailActivity.class);
@@ -77,5 +78,10 @@ public class OrderAdapter extends RecyclerView.Adapter<OrderAdapter.OrderViewHol
         this.orderList.clear();
         this.orderList.addAll(newOrderList);
         notifyDataSetChanged();
+    }
+
+    public String formatPrice(double price) {
+        NumberFormat numberFormat = NumberFormat.getNumberInstance(Locale.US);
+        return "₫" + numberFormat.format(price);
     }
 }

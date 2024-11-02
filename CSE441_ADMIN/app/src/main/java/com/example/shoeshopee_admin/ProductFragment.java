@@ -27,6 +27,7 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 public class ProductFragment extends Fragment {
@@ -62,6 +63,7 @@ public class ProductFragment extends Fragment {
         productList = new ArrayList<>();
         productList1 = new ArrayList<>();
 
+
         adapter = new ProductAdapter(productList, getActivity());
         recyclerView.setAdapter(adapter);
 
@@ -76,6 +78,8 @@ public class ProductFragment extends Fragment {
                         productList1.add(product);
                     }
                 }
+                Collections.reverse(productList);
+                Collections.reverse(productList1);
                 adapter.notifyDataSetChanged();
             }
 
@@ -123,6 +127,7 @@ public class ProductFragment extends Fragment {
     }
 
     private void updateRecyclerView(List<Product> newList) {
+//        Collections.reverse(newList);
         adapter.updateData(newList);
         adapter.notifyDataSetChanged();
     }

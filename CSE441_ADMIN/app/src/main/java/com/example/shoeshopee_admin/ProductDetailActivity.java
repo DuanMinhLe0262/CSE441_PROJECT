@@ -13,6 +13,7 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.Spinner;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -34,8 +35,6 @@ import com.google.firebase.storage.StorageReference;
 
 import java.io.FileNotFoundException;
 import java.io.InputStream;
-import java.net.MalformedURLException;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -50,24 +49,18 @@ public class ProductDetailActivity extends AppCompatActivity {
     private List<String> brandIdList = new ArrayList<>();
     private List<String> brandNameList = new ArrayList<>();
     private int brandNumber = 0;
-
-    private  Map<String, Color> colors = new HashMap<>();
-
+    private Map<String, Color> colors = new HashMap<>();
     private String brandId;
-
     private static final int REQUEST_CODE_IMAGE_PICKER = 1;
     private DatabaseReference productsRef;
     private List<LinearLayout> list_layout_Option = new ArrayList<>();
     private LinearLayout layout_Option;
-
     private TextInputEditText etProductName, etProductDescription;
-
-    private  Map<View, List<String>> optionLayoutImageMap = new HashMap<>();
+    private Map<View, List<String>> optionLayoutImageMap = new HashMap<>();
     private LinearLayout selectedOptionLayout = null; // layout khi an add image
-
     private LinearLayout selectedLayoutImageSelection; // layout danh sach anh da chon
-
     private String productId = "";
+    private TextView txtDeleteProduct;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -79,26 +72,29 @@ public class ProductDetailActivity extends AppCompatActivity {
 
         backBtn = findViewById(R.id.backBtn);
         backBtn.setOnClickListener(v -> finish());
-
-
         spinnerBrand = findViewById(R.id.spinner_brand);
         database = FirebaseDatabase.getInstance();
         brandsRef = database.getReference("brands");
-
         productsRef = FirebaseDatabase.getInstance().getReference("products");
-
-
         etProductName = findViewById(R.id.et_product_name);
         etProductDescription = findViewById(R.id.et_product_description);
         layout_Option = findViewById(R.id.layout_Option);
+        txtDeleteProduct = findViewById(R.id.txtDeleteProduct);
+
+        txtDeleteProduct.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                showDeleteProductConfirmationDialog();
+            }
+        });
 
         fetchProductData();
 
         Button btnAddOption = findViewById(R.id.btn_add_option);
         btnAddOption.setOnClickListener(v -> addOption());
 
-        Button btnAddProduct = findViewById(R.id.btn_edit_product);
-        btnAddProduct.setOnClickListener(v -> updateProduct());
+        Button btnEditProduct = findViewById(R.id.btn_edit_product);
+        btnEditProduct.setOnClickListener(v -> updateProduct());
     }
 
     private void fetchProductData() {
@@ -109,8 +105,6 @@ public class ProductDetailActivity extends AppCompatActivity {
                     String productName = dataSnapshot.child("name").getValue(String.class);
                     String productDescription = dataSnapshot.child("description").getValue(String.class);
                     String brandId = dataSnapshot.child("brandId").getValue(String.class);
-
-
 
                     fetchBrandsFromFirebase(new OnloadedListener() {
                         @Override
@@ -211,10 +205,8 @@ public class ProductDetailActivity extends AppCompatActivity {
                     });
 
                     Button btnDeleteOption = layout_option.findViewById(R.id.btn_delete_option);
-                    btnDeleteOption.setOnClickListener(v -> showDeleteConfirmationDialog(layout_option));
-
+                    btnDeleteOption.setOnClickListener(v -> showDeleteOptionConfirmationDialog(layout_option));
                     layout_Option.addView(layout_option);
-
                 }
             }
         } else {
@@ -275,7 +267,7 @@ public class ProductDetailActivity extends AppCompatActivity {
 
 
         Button btnDeleteOption = newLayout_Option.findViewById(R.id.btn_delete_option);
-        btnDeleteOption.setOnClickListener(v -> showDeleteConfirmationDialog(newLayout_Option));
+        btnDeleteOption.setOnClickListener(v -> showDeleteOptionConfirmationDialog(newLayout_Option));
 
 
         layout_Option.addView(newLayout_Option);
@@ -283,15 +275,29 @@ public class ProductDetailActivity extends AppCompatActivity {
 
     }
 
-    private void showDeleteConfirmationDialog(LinearLayout layout_option) {
+    private void showDeleteOptionConfirmationDialog(LinearLayout layout_option) {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setTitle("Delete Option");
-        builder.setMessage("Are you sure you want to delete this option?");
-        builder.setPositiveButton("Yes", (dialog, which) -> {
+        builder.setTitle("Xóa lựa chọn");
+        builder.setMessage("Bạn chắc chắn muốn xóa lựa chọn này?");
+        builder.setPositiveButton("Có", (dialog, which) -> {
             layout_Option.removeView(layout_option);
             list_layout_Option.remove(layout_option);
         });
-        builder.setNegativeButton("No", (dialog, which) -> dialog.dismiss());
+        builder.setNegativeButton("Không", (dialog, which) -> dialog.dismiss());
+        builder.create().show();
+    }
+
+    private void showDeleteProductConfirmationDialog() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("Xóa lựa chọn");
+        builder.setMessage("Bạn chắc chắn muốn xóa sản phẩm này?");
+        builder.setPositiveButton("Có", (dialog, which) -> {
+            FirebaseDatabase database = FirebaseDatabase.getInstance();
+            DatabaseReference productRef = database.getReference("products").child(productId);
+            productRef.removeValue();
+            finish();
+        });
+        builder.setNegativeButton("Không", (dialog, which) -> dialog.dismiss());
         builder.create().show();
     }
 
@@ -343,7 +349,6 @@ public class ProductDetailActivity extends AppCompatActivity {
                 } else {
                     existingColor.getSizes().put(sizeName, new Size(sizeName, quantity));
                 }
-
                 existingColor.setPrice(price);
             } else {
                 Map<String, Size> sizes = new HashMap<>();
@@ -357,16 +362,12 @@ public class ProductDetailActivity extends AppCompatActivity {
         }
 
         Product product = new Product(productId, productName, productDescription, brandId, colors);
-
-        uploadImagesAndAddProduct(product);
-
-
+        uploadImages(product);
     }
 
-    private void uploadImagesAndAddProduct(Product product) {
+    private void uploadImages(Product product) {
         int[] uploadedCount = {0};
         final int[] totalImages = {0};
-
 
         for (Color color : product.getColors().values()) {
             totalImages[0] += color.getImages().size();
@@ -392,12 +393,10 @@ public class ProductDetailActivity extends AppCompatActivity {
                             saveProductToFirebase(product);
                         }
                     }
-
                     @Override
                     public void onBrandLoaded(List<String> brandNames, List<String> brandIds) {
 
                     }
-
                 });
             }
         }
@@ -409,12 +408,12 @@ public class ProductDetailActivity extends AppCompatActivity {
         productsRef.child(product.getId()).setValue(product)
                 .addOnCompleteListener(task -> {
                     if (task.isSuccessful()) {
-                        Toast.makeText(ProductDetailActivity.this, "Product added successfully", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(ProductDetailActivity.this, "Chỉnh sửa sản phẩm thành công", Toast.LENGTH_SHORT).show();
                         finish();
 
 
                     } else {
-                        Toast.makeText(ProductDetailActivity.this, "Failed to add product", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(ProductDetailActivity.this, "Chỉnh sửa sản phẩm thất bại", Toast.LENGTH_SHORT).show();
                     }
                 });
     }

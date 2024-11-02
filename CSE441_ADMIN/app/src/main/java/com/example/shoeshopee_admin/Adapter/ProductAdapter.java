@@ -18,7 +18,9 @@ import com.example.shoeshopee_admin.Model.Product;
 import com.example.shoeshopee_admin.ProductDetailActivity;
 import com.example.shoeshopee_admin.R;
 
+import java.text.NumberFormat;
 import java.util.List;
+import java.util.Locale;
 
 public class ProductAdapter extends RecyclerView.Adapter<ProductAdapter.ProductViewHolder> {
 
@@ -41,22 +43,14 @@ public class ProductAdapter extends RecyclerView.Adapter<ProductAdapter.ProductV
     @Override
     public void onBindViewHolder(@NonNull ProductViewHolder holder, int position) {
         Product product = productList.get(position);
-
         holder.productName.setText(product.getName());
-//        holder.productDescription.setText(product.getDescription());
-//        holder.productBrand.setText(product.getBrandId());
 
         // Kiểm tra nếu sản phẩm có màu
         if (product.getColors() != null && !product.getColors().isEmpty()) {
             Log.d("ProductAdapter", "Colors: " + product.getColors());
-
             // Lấy màu đầu tiên từ Map
             Color firstColor = product.getColors().values().iterator().next();
-            Log.d("ProductAdapter", "First Color: " + firstColor);
-
-            // Đặt tên màu và giá
-            //holder.colorName.setText(firstColor.getColorName());
-           // holder.colorPrice.setText(String.format("$%.2f", firstColor.getPrice()));
+            holder.productPrice.setText(formatPrice(firstColor.getPrice()));
 
             // Tải hình ảnh đầu tiên của màu
             if (firstColor.getImages() != null && !firstColor.getImages().isEmpty()) {
@@ -70,8 +64,6 @@ public class ProductAdapter extends RecyclerView.Adapter<ProductAdapter.ProductV
             }
         } else {
             // Xử lý trường hợp không có màu
-            //holder.colorName.setText("No color available");
-           // holder.colorPrice.setText("$0.00"); // Hoặc một giá trị mặc định
             holder.productImage.setImageResource(R.drawable.error_image); // Hình ảnh placeholder
         }
 
@@ -94,13 +86,19 @@ public class ProductAdapter extends RecyclerView.Adapter<ProductAdapter.ProductV
     }
 
     public static class ProductViewHolder extends RecyclerView.ViewHolder {
-        TextView productName;
+        TextView productName, productPrice;
         ImageView productImage;
 
         public ProductViewHolder(@NonNull View itemView) {
             super(itemView);
-            productName = itemView.findViewById(R.id.product_name);
-            productImage = itemView.findViewById(R.id.product_image);
+            productName = itemView.findViewById(R.id.txtProductName);
+            productPrice = itemView.findViewById(R.id.txtPrice);
+            productImage = itemView.findViewById(R.id.imgProduct);
         }
+    }
+
+    public String formatPrice(double price) {
+        NumberFormat numberFormat = NumberFormat.getNumberInstance(Locale.US);
+        return "₫" + numberFormat.format(price);
     }
 }

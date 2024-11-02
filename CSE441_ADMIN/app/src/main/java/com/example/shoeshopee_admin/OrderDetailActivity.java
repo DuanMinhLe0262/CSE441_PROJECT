@@ -1,6 +1,5 @@
 package com.example.shoeshopee_admin;
 
-import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -14,9 +13,6 @@ import android.widget.Toast;
 import androidx.activity.EdgeToEdge;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.graphics.Insets;
-import androidx.core.view.ViewCompat;
-import androidx.core.view.WindowInsetsCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -29,8 +25,10 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
+import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 public class OrderDetailActivity extends AppCompatActivity {
 
@@ -94,12 +92,11 @@ public class OrderDetailActivity extends AppCompatActivity {
 
     private void updateOrderStatus(String orderId) {
         String selectedStatus = statusSpinner.getSelectedItem().toString();
-
         DatabaseReference orderRef = FirebaseDatabase.getInstance().getReference("orders").child(orderId);
         orderRef.child("status").setValue(selectedStatus).addOnCompleteListener(task -> {
             if (task.isSuccessful()) {
                 Toast.makeText(OrderDetailActivity.this, "Trạng thái đã được cập nhật.", Toast.LENGTH_SHORT).show();
-                startActivity(new Intent(OrderDetailActivity.this, OrderFragment.class));
+                finish();
             } else {
                 Toast.makeText(OrderDetailActivity.this, "Cập nhật trạng thái thất bại.", Toast.LENGTH_SHORT).show();
                 Log.e("OrderDetailActivity", "Error: " + task.getException());
@@ -116,15 +113,14 @@ public class OrderDetailActivity extends AppCompatActivity {
                 Order order = snapshot.getValue(Order.class);
                 if (order != null) {
 
-                    orderIdText.setText(String.format("Order ID: %s", orderId));
-                    customerNameText.setText(String.format("Customer: %s", order.getName()));
-                    customerPhoneText.setText(String.format("Phone: %s", order.getPhone()));
-                    addressText.setText(String.format("Address: %s", order.getAddress()));
-                    totalAmountText.setText(String.format("Total: %.2f", order.getTotal()));
-                    statusText.setText(String.format("Status: %s", order.getStatus()));
-
-                    noteText.setText(String.format("Note: %s", order.getNote()));
-                    timeText.setText(String.format("Time: %s", order.getTime()));
+                    orderIdText.setText(String.format("Mã đơn hàng: %s", orderId));
+                    customerNameText.setText(String.format("Khách hàng: %s", order.getName()));
+                    customerPhoneText.setText(String.format("Số điện thoại: %s", order.getPhone()));
+                    addressText.setText(String.format("Địa chỉ giao hàng: %s", order.getAddress()));
+                    totalAmountText.setText(String.format("Tổng tiền: %s", formatPrice(order.getTotal())));
+                    statusText.setText(String.format("Trạng thái: %s", order.getStatus()));
+                    noteText.setText(String.format("Ghi chú: %s", order.getNote()));
+                    timeText.setText(String.format("Thời gian đặt hàng: %s", order.getTime()));
 
                     // Thiết lập giá trị cho Spinner
                     int spinnerPosition = adapter.getPosition(order.getStatus());
@@ -173,5 +169,10 @@ public class OrderDetailActivity extends AppCompatActivity {
                 Log.e("OrderDetailActivity", "DatabaseError: " + error.getMessage());
             }
         });
+    }
+
+    public String formatPrice(double price) {
+        NumberFormat numberFormat = NumberFormat.getNumberInstance(Locale.US);
+        return "₫" + numberFormat.format(price);
     }
 }

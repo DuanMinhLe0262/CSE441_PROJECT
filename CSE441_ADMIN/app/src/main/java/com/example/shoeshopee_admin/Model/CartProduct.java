@@ -86,6 +86,20 @@ public class CartProduct {
         this.quantity = quantity;
     }
 
+    @Override
+    public String toString() {
+        return "CartProduct{" +
+                "id='" + id + '\'' +
+                ", name='" + name + '\'' +
+                ", colorName='" + colorName + '\'' +
+                ", image='" + image + '\'' +
+                ", sizeName='" + sizeName + '\'' +
+                ", price=" + price +
+                ", brandName='" + brandName + '\'' +
+                ", quantity=" + quantity +
+                '}';
+    }
+
     public CartProduct() {
     }
 }
