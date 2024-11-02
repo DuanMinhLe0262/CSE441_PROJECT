@@ -185,11 +185,9 @@ public class StatisticFragment extends Fragment {
                     order.setTime(orderSnapshot.child("time").getValue(String.class));
                     order.setStatus(orderSnapshot.child("status").getValue(String.class));
 
-                    // Initialize total revenue for this order
                     double orderTotal = 0;
 
                     for (DataSnapshot itemSnapshot : orderSnapshot.child("items").getChildren()) {
-                        // Extract product details
                         String productId = itemSnapshot.getKey();
                         String productName = itemSnapshot.child("name").getValue(String.class);
                         String brand = itemSnapshot.child("brand").getValue(String.class);
@@ -198,7 +196,6 @@ public class StatisticFragment extends Fragment {
                             String colorName = colorSnapshot.getKey();
                             double price = colorSnapshot.child("price").getValue(Double.class);
 
-                            // Get available sizes
                             for (DataSnapshot sizeSnapshot : colorSnapshot.child("sizes").getChildren()) {
                                 int size = Integer.parseInt(sizeSnapshot.getKey());
                                 int quantity = sizeSnapshot.child("quantity").getValue(Integer.class);
@@ -211,7 +208,6 @@ public class StatisticFragment extends Fragment {
                     order.setTotal(orderTotal);
 
                     if (order != null && order.getTime() != null && "Đã giao hàng".equals(order.getStatus())) {
-                        // Monthly revenue calculation
                         String[] timeParts = order.getTime().split(" ");
                         if (timeParts.length >= 2) {
                             String[] dateParts = timeParts[1].split(":");
@@ -231,7 +227,7 @@ public class StatisticFragment extends Fragment {
                             if (productIndex == -1) {
                                 productNames.add(productName);
                                 productIndex = productNames.size() - 1;
-                                productRevenue = Arrays.copyOf(productRevenue, productRevenue.length + 1); // Expand if necessary
+                                productRevenue = Arrays.copyOf(productRevenue, productRevenue.length + 1);
                             }
 
                             double totalProductRevenue = 0;

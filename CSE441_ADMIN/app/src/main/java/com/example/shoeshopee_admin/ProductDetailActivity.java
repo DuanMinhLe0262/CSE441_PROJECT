@@ -1,6 +1,7 @@
 package com.example.shoeshopee_admin;
 
 import android.app.AlertDialog;
+import android.app.ProgressDialog;
 import android.content.ClipData;
 import android.content.Intent;
 import android.net.Uri;
@@ -35,6 +36,8 @@ import com.google.firebase.storage.StorageReference;
 
 import java.io.FileNotFoundException;
 import java.io.InputStream;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -54,6 +57,8 @@ public class ProductDetailActivity extends AppCompatActivity {
     private static final int REQUEST_CODE_IMAGE_PICKER = 1;
     private DatabaseReference productsRef;
     private List<LinearLayout> list_layout_Option = new ArrayList<>();
+    private List<LinearLayout> allOptionLayoutsBeforeFilled = new ArrayList<>();
+    //    private List<LinearLayout> list_layout_Option_efore = new ArrayList<>();
     private LinearLayout layout_Option;
     private TextInputEditText etProductName, etProductDescription;
     private Map<View, List<String>> optionLayoutImageMap = new HashMap<>();
@@ -61,6 +66,8 @@ public class ProductDetailActivity extends AppCompatActivity {
     private LinearLayout selectedLayoutImageSelection; // layout danh sach anh da chon
     private String productId = "";
     private TextView txtDeleteProduct;
+    ProgressDialog progressDialog;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -85,6 +92,7 @@ public class ProductDetailActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 showDeleteProductConfirmationDialog();
+//                finish();
             }
         });
 
@@ -98,7 +106,7 @@ public class ProductDetailActivity extends AppCompatActivity {
     }
 
     private void fetchProductData() {
-        productsRef.child(productId).addListenerForSingleValueEvent(new ValueEventListener() {
+        productsRef.child(productId).addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 if (dataSnapshot.exists()) {
@@ -145,7 +153,6 @@ public class ProductDetailActivity extends AppCompatActivity {
 
                         Color color = new Color(colorName, price, images, sizes);
                         colors.put(colorName, color);
-
                         DisplayOptionLayout(color);
                     }
 
@@ -176,9 +183,11 @@ public class ProductDetailActivity extends AppCompatActivity {
 
                     // Hiển thị danh sách ảnh
                     LinearLayout layoutImageSelection = layout_option.findViewById(R.id.layout_image_selection);
+                    List<String> imgList = new ArrayList<>();
                     if (color.getImages() != null) {
                         for (String imageUrl : color.getImages()) {
                             if (imageUrl != null) {
+                                imgList.add(imageUrl);
                                 ImageView imageView = new ImageView(this);
                                 LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(
                                         100, 100
@@ -199,14 +208,18 @@ public class ProductDetailActivity extends AppCompatActivity {
 
                     Button btnSelectImages = layout_option.findViewById(R.id.btn_select_images);
                     btnSelectImages.setOnClickListener(v -> {
-                        openImagePicker(layoutImageSelection);
+                        openImagePicker(layout_option);
                         selectedLayoutImageSelection = layoutImageSelection;
-
                     });
 
                     Button btnDeleteOption = layout_option.findViewById(R.id.btn_delete_option);
                     btnDeleteOption.setOnClickListener(v -> showDeleteOptionConfirmationDialog(layout_option));
                     layout_Option.addView(layout_option);
+                    list_layout_Option.add(layout_option);
+                    allOptionLayoutsBeforeFilled.add(layout_option);
+                    optionLayoutImageMap.put(layout_option, imgList);
+                    Log.d("imggg", optionLayoutImageMap.toString());
+                    Log.d("option", layout_option.toString());
                 }
             }
         } else {
@@ -227,9 +240,11 @@ public class ProductDetailActivity extends AppCompatActivity {
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == REQUEST_CODE_IMAGE_PICKER && resultCode == RESULT_OK && data != null && selectedOptionLayout != null) {
             List<String> selectedImageUris = new ArrayList<>();
-
+            Log.d("option1", selectedOptionLayout.toString());
+            optionLayoutImageMap.remove(selectedOptionLayout);
+            selectedLayoutImageSelection.removeAllViews();
+            Log.d("imggg1", optionLayoutImageMap.toString());
             if (data.getClipData() != null) {
-
                 ClipData clipData = data.getClipData();
                 for (int i = 0; i < clipData.getItemCount(); i++) {
                     Uri imageUri = clipData.getItemAt(i).getUri();
@@ -244,34 +259,66 @@ public class ProductDetailActivity extends AppCompatActivity {
 
             if (!selectedImageUris.isEmpty()) {
                 optionLayoutImageMap.put(selectedOptionLayout, selectedImageUris);
-                Log.d("df", optionLayoutImageMap.toString());
+                Log.d("imggg2", optionLayoutImageMap.toString());
                 list_layout_Option.add(selectedOptionLayout);
             }
-
             selectedOptionLayout = null;
         }
     }
 
+    private Boolean checkInforOption() {
+        LinearLayout optionView = allOptionLayoutsBeforeFilled.get(allOptionLayoutsBeforeFilled.size() - 1);
+        TextInputEditText colorEditText = optionView.findViewById(R.id.et_color);
+        TextInputEditText priceEditText = optionView.findViewById(R.id.et_price);
+        TextInputEditText sizeEditText = optionView.findViewById(R.id.et_size);
+        TextInputEditText quantityEditText = optionView.findViewById(R.id.et_quantity);
+        LinearLayout layoutImageSelection = optionView.findViewById(R.id.layout_image_selection);
+
+        // Kiểm tra giá trị của các trường nhập liệu, thay vì chỉ kiểm tra null của EditText
+        if (colorEditText.getText() == null || colorEditText.getText().toString().trim().isEmpty()) {
+            colorEditText.setError("Vui lòng nhập màu lựa chọn");
+            return false;
+        }
+        if (priceEditText.getText() == null || priceEditText.getText().toString().trim().isEmpty()) {
+            priceEditText.setError("Vui lòng nhập giá lựa chọn");
+            return false;
+        }
+        if (sizeEditText.getText() == null || sizeEditText.getText().toString().trim().isEmpty()) {
+            sizeEditText.setError("Vui lòng nhập kích thước lựa chọn");
+            return false;
+        }
+        if (quantityEditText.getText() == null || quantityEditText.getText().toString().trim().isEmpty()) {
+            quantityEditText.setError("Vui lòng nhập số lượng lựa chọn");
+            return false;
+        }
+        if (layoutImageSelection.getChildCount() == 0){
+            Toast.makeText(optionView.getContext(), "Vui lòng chọn ít nhất một ảnh", Toast.LENGTH_SHORT).show();
+            return false;
+        }
+        return true;
+    }
+
     private void addOption() {
-        LinearLayout newLayout_Option = (LinearLayout) getLayoutInflater().inflate(R.layout.layout_option_item, null);
+        Boolean check = true;
+        if (allOptionLayoutsBeforeFilled.size() >= 1){
+            check = checkInforOption();
+        }
+        if(check){
+            LinearLayout newLayout_Option = (LinearLayout) getLayoutInflater().inflate(R.layout.layout_option_item, null);
+            allOptionLayoutsBeforeFilled.add(newLayout_Option);
+            Button btnSelectImages = newLayout_Option.findViewById(R.id.btn_select_images);
+            LinearLayout layoutImageSelection = newLayout_Option.findViewById(R.id.layout_image_selection); // layout danh sach anh da chon
 
-        Button btnSelectImages = newLayout_Option.findViewById(R.id.btn_select_images);
-        LinearLayout layoutImageSelection = newLayout_Option.findViewById(R.id.layout_image_selection); // layout danh sach anh da chon
+            btnSelectImages.setOnClickListener(v -> {
+                openImagePicker(newLayout_Option);
+                selectedLayoutImageSelection = layoutImageSelection;
+            });
+            Button btnDeleteOption = newLayout_Option.findViewById(R.id.btn_delete_option);
+            btnDeleteOption.setOnClickListener(v -> showDeleteOptionConfirmationDialog(newLayout_Option));
+            layout_Option.addView(newLayout_Option);
+        }
 
-        btnSelectImages.setOnClickListener(v -> {
-
-            openImagePicker(newLayout_Option);
-
-            selectedLayoutImageSelection = layoutImageSelection;
-        });
-
-
-        Button btnDeleteOption = newLayout_Option.findViewById(R.id.btn_delete_option);
-        btnDeleteOption.setOnClickListener(v -> showDeleteOptionConfirmationDialog(newLayout_Option));
-
-
-        layout_Option.addView(newLayout_Option);
-        list_layout_Option.add(newLayout_Option);
+//        list_layout_Option.add(newLayout_Option);
 
     }
 
@@ -281,7 +328,13 @@ public class ProductDetailActivity extends AppCompatActivity {
         builder.setMessage("Bạn chắc chắn muốn xóa lựa chọn này?");
         builder.setPositiveButton("Có", (dialog, which) -> {
             layout_Option.removeView(layout_option);
-            list_layout_Option.remove(layout_option);
+            if(list_layout_Option.contains(layout_option)){
+                list_layout_Option.remove(layout_option);
+                allOptionLayoutsBeforeFilled.remove(layout_option);
+                Log.d("qwer", list_layout_Option.size()+"");
+            }
+            Log.d("qwer", list_layout_Option.toString());
+            Log.d("qwer", layout_option.toString());
         });
         builder.setNegativeButton("Không", (dialog, which) -> dialog.dismiss());
         builder.create().show();
@@ -318,52 +371,89 @@ public class ProductDetailActivity extends AppCompatActivity {
     private void updateProduct() {
         String productName = ((TextInputEditText) findViewById(R.id.et_product_name)).getText().toString().trim();
         String productDescription = ((TextInputEditText) findViewById(R.id.et_product_description)).getText().toString().trim();
+        if (productName == null || productName.trim().isEmpty()) {
+            etProductName.setError("Vui lòng nhập tên sản phẩm");
+            return;
+        }
+
+        // Kiểm tra mô tả sản phẩm
+        if (productDescription == null || productDescription.trim().isEmpty()) {
+            etProductDescription.setError("Vui lòng nhập mô tả sản phẩm");
+            return;
+        }
+        if (allOptionLayoutsBeforeFilled.size() >= 1){
+            if(!checkInforOption()) return;
+        }
+
+        progressDialog = new ProgressDialog(this);
+        progressDialog.setMessage("Đang chỉnh sửa...");
+        progressDialog.setCancelable(false);
+        progressDialog.show();
 
         int selectedIndex = spinnerBrand.getSelectedItemPosition();
         String brandId = brandIdList.get(selectedIndex);
+        Log.d("sizeeee", list_layout_Option.size() + "");
 
-        for (int i = 0; i < list_layout_Option.size(); i++) {
-            View optionView = list_layout_Option.get(i);
-            Log.d("??1", optionView.toString());
+        FirebaseDatabase database = FirebaseDatabase.getInstance();
+        DatabaseReference productRef = database.getReference("products").child(productId); // Giữ lại khóa sản phẩm cũ
 
-            List<String> imagelist = optionLayoutImageMap.get(optionView);
+        if (productId != null) {
+            productRef.removeValue();
+            Map<String, Color> colorMap = new HashMap<>();
 
-            TextInputEditText colorEditText = optionView.findViewById(R.id.et_color);
-            TextInputEditText priceEditText = optionView.findViewById(R.id.et_price);
-            TextInputEditText sizeEditText = optionView.findViewById(R.id.et_size);
-            TextInputEditText quantityEditText = optionView.findViewById(R.id.et_quantity);
+            for (int i = 0; i < list_layout_Option.size(); i++) {
+                View optionView = list_layout_Option.get(i);
+                Log.d("??1", optionView.toString());
 
-            String colorName = colorEditText.getText().toString();
-            double price = Double.parseDouble(priceEditText.getText().toString());
+                TextInputEditText colorEditText = optionView.findViewById(R.id.et_color);
+                TextInputEditText priceEditText = optionView.findViewById(R.id.et_price);
+                TextInputEditText sizeEditText = optionView.findViewById(R.id.et_size);
+                TextInputEditText quantityEditText = optionView.findViewById(R.id.et_quantity);
 
-
-            if (colors.containsKey(colorName)) {
-                Color existingColor = colors.get(colorName);
+                String colorName = colorEditText.getText().toString();
+                double price = Double.parseDouble(priceEditText.getText().toString());
                 String sizeName = sizeEditText.getText().toString();
                 int quantity = Integer.parseInt(quantityEditText.getText().toString());
+                List<String> imagelist = optionLayoutImageMap.get(optionView); // Giả sử bạn đã lưu hình ảnh vào map
 
-                if (existingColor.getSizes().containsKey(sizeName)) {
-                    Size existingSize = existingColor.getSizes().get(sizeName);
-                    existingSize.setQuantity(existingSize.getQuantity() + quantity);
+                Size size = new Size(sizeName, quantity);
 
+                // Kiểm tra xem `colorName` đã tồn tại trong `colorMap` chưa
+                if (colorMap.containsKey(colorName)) {
+                    // Nếu tồn tại, cập nhật `Color` và thêm `Size` vào `sizes` của `Color`
+                    Color existingColor = colorMap.get(colorName);
+                    existingColor.setPrice(price); // Cập nhật giá cho màu này
+
+                    // Kiểm tra kích thước đã tồn tại chưa
+                    if (existingColor.getSizes().containsKey(sizeName)) {
+                        // Nếu kích thước đã tồn tại, gộp số lượng
+                        Size existingSize = existingColor.getSizes().get(sizeName);
+                        existingSize.setQuantity(existingSize.getQuantity() + quantity); // Cộng thêm số lượng
+                    } else {
+                        // Nếu kích thước chưa tồn tại, thêm mới
+                        Size newSize = new Size(sizeName, quantity);
+                        existingColor.getSizes().put(sizeName, newSize); // Thêm kích thước mới vào sizes
+                    }
                 } else {
-                    existingColor.getSizes().put(sizeName, new Size(sizeName, quantity));
+                    // Nếu không tồn tại màu, tạo mới
+                    Map<String, Size> sizes = new HashMap<>();
+                    sizes.put(sizeName, size);
+                    Color color = new Color(colorName, price, imagelist, sizes);
+                    colorMap.put(colorName, color); // Thêm màu mới vào colorMap
                 }
-                existingColor.setPrice(price);
-            } else {
-                Map<String, Size> sizes = new HashMap<>();
-                String sizeName = sizeEditText.getText().toString();
-                int quantity = Integer.parseInt(quantityEditText.getText().toString());
-                sizes.put(sizeName, new Size(sizeName, quantity));
-
-                colors.put(colorName, new Color(colorName, price, imagelist, sizes));
-                Log.d("ioes4", "onDataChange: "+colors.size());
             }
-        }
 
-        Product product = new Product(productId, productName, productDescription, brandId, colors);
-        uploadImages(product);
+            // Chuyển đổi `colorMap` sang `List<Color>` để lưu vào `Product`
+//            List<Color> colorList = new ArrayList<>(colorMap.values());
+
+            // Tạo đối tượng `Product` mới và cập nhật vào Firebase
+            Product updatedProduct = new Product(productId, productName, productDescription, brandId, colorMap);
+            uploadImages(updatedProduct);
+        }
     }
+
+
+
 
     private void uploadImages(Product product) {
         int[] uploadedCount = {0};
@@ -409,9 +499,9 @@ public class ProductDetailActivity extends AppCompatActivity {
                 .addOnCompleteListener(task -> {
                     if (task.isSuccessful()) {
                         Toast.makeText(ProductDetailActivity.this, "Chỉnh sửa sản phẩm thành công", Toast.LENGTH_SHORT).show();
-                        finish();
-
-
+                        Intent intent = new Intent(ProductDetailActivity.this, MainActivity.class);
+                        intent.putExtra("fragmentToLoad", "product");
+                        startActivity(intent);
                     } else {
                         Toast.makeText(ProductDetailActivity.this, "Chỉnh sửa sản phẩm thất bại", Toast.LENGTH_SHORT).show();
                     }
@@ -438,6 +528,7 @@ public class ProductDetailActivity extends AppCompatActivity {
                             String imageUrl = downloadUri.toString();
                             listener.onImageUploaded(imageUrl);
                         });
+                        progressDialog.dismiss();
                     })
                     .addOnFailureListener(e -> {
                         Toast.makeText(this, "Upload failed: " + e.getMessage(), Toast.LENGTH_SHORT).show();
@@ -450,7 +541,7 @@ public class ProductDetailActivity extends AppCompatActivity {
 
 
     private void fetchBrandsFromFirebase(OnloadedListener listener) {
-        brandsRef.addListenerForSingleValueEvent(new ValueEventListener() {
+        brandsRef.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                 brandNumber = 0;
