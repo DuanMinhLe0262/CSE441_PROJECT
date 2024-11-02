@@ -53,6 +53,22 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         drawerLayout.addDrawerListener(toggle);
         toggle.syncState();
 
+        String item_nav_index = "0";
+        String fragmentToLoad = getIntent().getStringExtra("fragmentToLoad");
+        if (fragmentToLoad == null) {
+            item_nav_index = "home";
+        }
+        else item_nav_index = fragmentToLoad;
+
+        switch (item_nav_index) {
+            case "home":
+                getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, new HomeFragment()).commit();
+                break;
+            case "product":
+                getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, new ProductFragment()).commit();
+                break;
+        }
+
         auth = FirebaseAuth.getInstance();
         userDatabase = FirebaseDatabase.getInstance().getReference("users");
 

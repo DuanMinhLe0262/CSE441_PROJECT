@@ -45,9 +45,11 @@ public class OrderFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_order, container, false);
+
         orderRecyclerView = view.findViewById(R.id.orderRecyclerView);
         spinner = view.findViewById(R.id.filterSpinner);
         searchEditText = view.findViewById(R.id.searchEditText);
+
         orderRecyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
         orderList = new ArrayList<>();
         orderListTmp = new ArrayList<>();

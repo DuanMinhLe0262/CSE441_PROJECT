@@ -149,7 +149,6 @@ public class BrandDetailActivity extends AppCompatActivity {
 
     private void uploadImage() {
         if (imageUri != null) {
-            // Generate a unique filename
             String fileName = UUID.randomUUID().toString();
             StorageReference fileRef = storageRef.child(fileName);
 
